@@ -19,6 +19,7 @@ import dlib
 import numpy as np
 import random
 import math
+import pickle
 
 class StrongRegressor:
     baseFunction # vector in R^2p
@@ -30,8 +31,13 @@ class StrongRegressor:
     def add(weakRegressor):
         weakRegressors.append(weakRegressor)
 
-    def eval(shape): # apply the strong regressor tree function
-        pass
+    def eval(image, shape): # apply the strong regressor tree function
+        # fk = f_(k-1) + lr * g_k # f_k = lr * g_k + lr * g_(k-1) + ... + lr * g_1 + f_0
+        # r_t = f_K
+        res = baseFunction # vector in R^2p
+        for k in range(K):
+            res += lr * weakRegressor[k].eval(image, shape)
+        return res
 
 class RegressionTree:
 
@@ -43,6 +49,9 @@ class RegressionTree:
     def eval(i):
         # images, functions not defined
 
+annotationPath = 'Users/frieda/Downloads/annotation/' # TODO use ~
+loadPath = 'faceDetector.pkl'
+savePath = loadPath
 
 lr = 0.1 # learning rate (v)
 T = 10 # number of strong regressors, r_t
@@ -70,10 +79,19 @@ shapeDeltas = []
 pi = []
 shapes = [] # len = 2000
 shapeEstimates = [] # len = N = 2000 * 20
+I = [] # face images
+residuals = [[] for i in range(N)]
+
+meanShape = []
+meanWidth = 0
+meanHeight = 0
 
 samplePoints = []
-priorWeights = [[] for i in range(P)] # adjacency matrix of weights for each possible pair of points
+samplePairs = []
+priorWeights = [] # [[] for i in range(P)] # adjacency matrix of weights for each possible pair of points
 random.seed()
+
+similarityTransforms = [] # triples of t, S, R
 
 # to train weak regressors, we randomly sample a pair of these P pixel locations according to our prior and choose a random threshold to create a potential split as described in equation 9 (the h thresholding split equation)
 
@@ -90,21 +108,20 @@ def prior(u,v):
 # during the training phase."
 
 def calculateSimilarityTransforms():
-    for i in range(N):
-        calculateSimilarityTransform(i)
+    similarityTransforms = [calculateSimilarityTransform(meanShape, shapeEstimates[i]) for i in range(N)]
 
 # Compute least squares transform as described in
 # https://en.wikipedia.org/wiki/Wahba%27s_problem
 # http://graphics.stanford.edu/courses/cs164-09-spring/Handouts/paper_Umeyama.pdf
 # http://eigen.tuxfamily.org/dox-devel/Umeyama_8h_source.html
-def calculateSimilarityTransform(x, t):
-    s, R = where sum of square x, s_i R_i x_i + t_i is minimum
-    return s, R
+def calculateSimilarityTransform(w, v):
+    # s, R = where sum of square x, s_i R_i x_i + t_i is minimum
+    # return s, R
 
     # shape 1
     # shape 2
-    v = meanShape
-    w = shapeEstimates[i]
+    # v = meanShape
+    # w = shapeEstimates[i]
 
     center_w = np.sum(w, 0)*1./len(w)
     center_v = np.sum(v, 0)*1./len(v)
@@ -125,16 +142,23 @@ def calculateSimilarityTransform(x, t):
     c = 1./var*np.trace(np.dot(S, M))
     t = np.transpose(np.transpose(center_w) - c * np.dot(R, np.transpose(center_v)))
 
-def warpPoints(u, v):
-    # u,v are points in coordinate system of mean shape
-    k_u is argmin dist(mean shape_k - u)
-    delta_x_u = u - x_k_u # offset from u
+    return c, R, t
+
+# http://codereview.stackexchange.com/questions/28207/finding-the-closest-point-to-a-list-of-points
+def closest(node, nodes):
+    nodes = np.asarray(nodes) # TODO already np array?
+    deltas = nodes - node
+    dist_2 = np.einsum('ij,ij->i', deltas, deltas)
+    return np.argmin(dist_2)
+
+def warpPoint(u, similarityTransform):
+    S, R, t = similarityTransform
+    # u is a point in coordinate system of mean shape
+    k_u = closest(u, meanShape)
+    delta_x_u = u - k_u # offset from u
     # s, R = calculate_similarity_transform(x, t)
-    u^ = = x_i,k_u + 1/s_i * R_i^T * delta_x_u
-
-    is minimum
-
-    # same for v^
+    u^ = = k_u + 1./S * np.dot(np.transpose(R), delta_x_u) # TODO check
+    return u^
 
 def split(i, tau, u1, v1):
     if I[pi[i]][u1] - I[pi[i]][v1] > tau: # compare intensities
@@ -146,24 +170,20 @@ def split(i, tau, u1, v1):
 def splitPoints(Q, theta):
     # Q is the set of indices of the training examples at a node
     tau, u, v = theta
-    u1, v1 = warpPoints(u, v)
-    # return [i for i in Q if split(i, tau, u1, v1) == 1]
     left, right = [], []
-    left.append(i) if split(i, tau, u1, v1) == 1 else right.append(i)
+    for i in Q:
+        u1 = warpPoint(u, similarityTransforms[pi[i]])
+        v1 = warpPoint(v, similarityTransforms[pi[i]])
+        # return [i for i in Q if split(i, tau, u1, v1) == 1] http://stackoverflow.com/questions/949098/python-split-a-list-based-on-a-condition
+        left.append(i) if split(i, tau, u1, v1) == 1 else right.append(i)
     return left, right
 
-def tryNodeSplit(Q, theta): # theta is a node split (tau, u, v)
+def tryNodeSplit(Q, mu, theta): # theta is a node split (tau, u, v)
     Q_l, Q_r = splitPoints(Q, theta)
     # our function is approximated as a piecewise constant function fit to each leaf node:
     # left node = one constant
     # right node = another constant
     # we split based on a theta
-
-    # how do we split by theta? AHHHH....wait.........
-    # theta is the three parameter vector in the previous section (tau, u, v)
-    # u is the left
-    # v is the right
-    # tau is ? ...??
 
     # to choose the theta, we generate a set of random thetas and then take the best candidate of these based on mimimizing the sum of square error
 
@@ -174,7 +194,7 @@ def tryNodeSplit(Q, theta): # theta is a node split (tau, u, v)
     # r_i is the vector of all the residuals computed for image i in the gradient boosting algorithm
 
     # we define:
-    mu_theta_l = 1 / len(Q_l) * sum([r[i] for i in Q_l])
+    mu_theta_l = np.mean([residuals[i] for i in Q_l], 0)
 
     # mu_theta, r can be calculated from mu_theta, l by:
     mu_theta_r = (len(Q)*mu - len(Q_l) * mu_theta_l) / len(Q_r)
@@ -191,26 +211,28 @@ def tryNodeSplit(Q, theta): # theta is a node split (tau, u, v)
     if val > maxval:
         maxval = val
         argmax = theta
-    return val, Q_l, Q_r
+    return val, Q_l, Q_r, mu_l, mu_r
 
 # # https://en.wikipedia.org/wiki/Least_squares#Linear_least_squares
 # https://en.wikipedia.org/wiki/Geometric_median
-def least_square_estimate(shapes):
+def groundEstimate(shapes):
     # shapes is an array of face shapes [[], [], [], ...]
-    return np.median(shapeEstimates, axis=0) # returns the geometric median
+    # return np.median(shapeEstimates, axis=0) # returns the geometric median
+    return np.mean(shapeEstimates, axis=0) # TODO please check
+
 
 def samplePixels():
     # return P = 400 pixel locations sampled from the image
     # run for each level of the cascade (T = 10)
-    points = [(random.randint(0, x), random.randint(0, y)) for i in range(20)]
-
+    points = [(random.randint(0, meanWidth), random.randint(0, meanHeight)) for i in range(P)]
+    pairs = [(points[i], points[j]) for i in range(len(points)) for j in range(len(points)) if i != j]
+    priorWeights = [prior(p) for p in pairs]
+    return points, pairs, priorWeights
 
 def samplePair():
     # sample two points from the sampled pixels based on our prior
     # order matters
-    pairs = [(points[i], points[j]) for i in range(len(points)) for j in range(len(points)) if i != j]
-    priorWeights = [prior(p) for p in pairs]
-    return np.random.choice(pairs, p=priorWeights) # choose a pair given probability distribution priorWeights
+    return np.random.choice(samplePairs, p=priorWeights) # choose a pair given probability distribution priorWeights
 
 def generateCandidateSplit():
     pair = samplePair()
@@ -218,28 +240,36 @@ def generateCandidateSplit():
     return threshold, pair
 
 def fitRegressionTree():
-    tree = fitNode(range(N), F) # F = 5; depth of tree
+    # mu = 1 / len(Q) * sum([r[i] for i in Q])
+    mu = np.mean(residuals, 0)
+    tree = fitNode(range(N), mu, F) # F = 5; depth of tree
 
 def fitNode(Q, depth):
-    mu = 1 / len(Q) * sum([r[i] for i in Q])
     maxval = 0
     for i in range(S): # S = 20
         candidateSplit = generateCandidateSplit()
-        val, q_l, q_r = tryNodeSplit(Q, candidateSplit)
+        val, q_l, q_r, mu_l0, mu_r0 = tryNodeSplit(Q, candidateSplit)
         if val > maxval:
             maxval = val
             split = candidateSplit
             Q_l = q_l
             Q_r = q_r
+            mu_l = mu_l0
+            mu_r = mu_r0
     tree = RegressionTree(split, depth)
     if level > 0:
         tree.leftTree = fitNode(Q_l, depth - 1)
         tree.rightTree = fitNode(Q_r, depth - 1)
     return tree
 
-
-def loadImages():
-    pass
+def loadData():
+    for i in range(1, N+1):
+        filePath = annotationPath + str(i) + '.txt'
+        imagePath = "" # TODO check scope
+        with open(filePath, 'r') as f:
+            # don't need to call f.close() this way http://stackoverflow.com/questions/3277503/how-to-read-a-file-line-by-line-into-a-list-with-python
+            imagePath = f.readline().rstrip('\n').rstrip('\r')
+            shapes[i] = [[float(s) for s in line.rstrip('\n').rstrip('\r').split(',')] for line in f.readlines()]
 
 def initializeShapes():
     pass
@@ -250,57 +280,62 @@ def calculateMeanShape():
     meanHeight =
 
 def generateTrainingData():
-    pi = np.random.permutation(np.repeat(np.arange(N), R))
-    # loadImages()
+    pi = np.random.permutation(np.repeat(np.arange(N), R)) # TODO change to no fixed point
     initializeShapes() # # use dlib to generate images for each face # use training data annotations
-    # delta_S[i]^(t) = S[pi[i]] - S[i]^(t) for i in 1..N
+    for i in range(N):
+        shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
 
-# def g(k):
-#     # g is a RegressionTree
-
-def r(i):
-    # fk = f_(k-1) + lr * g_k # f_k = lr * g_k + lr * g_(k-1) + ... + lr * g_1 + f_0
-    # r_t = f_K
-    res = f_0[t] # vector in R^2p
-    for k in range(K):
-        res += lr * g[t][k].eval(i)
-    return res
-
-def updateShapes():
-    S[i] += r(i) # r(I[pi[i]], S[i])
-
-calculateMeanShape()
-generateTrainingData()
-for t in range(T):
-    samplePoints, priorWeights = samplePixels()
-    # learn the regression function using gradient boosting and a sum of square error loss
-    # f_i are the weak regressors
-    # f0 is the point at which the distance from that point to all the other points in the delta shape is at a minimum
-    strongRegressor[t] = new StrongRegressor(groundEstimate(shapeDeltas)) # f_0 is a median face shape, gamma, belonging to R^2p where p is the number of facial landmarks
-
-    calculateSimilarityTransforms()
-    for k in range(K):
-        # f_k is f_(k-1) of a guess ^S(t) plus lr * g_k of a guess ^S(t)
-        for i in range(N):
-            residuals[i][k] = shapeDelta[i] - strongRegressor[t].on(i) # is the delta shape - f of k-1 # compute residuals
-            # r_ik is a delta delta shape; r_ik also belongs to R^2p
-
-        # regression
-        # fit a regression tree to the 2p-dimensional targets r_ik giving a weak regression function g_k(I, S^(t))
-        # there are N targets r_ik (k is fixed; i = 1..N)
-
-        # tree = RegressionTree() # new instance of RegressionTree
-        tree = fitRegressionTree(residuals)
-        # node_split = choose_node_split()
-        # split(node_split)
-        # ~~choose closer pixel pairs by using an exponential prior~~ updated
-        strongRegressor[t].add(tree)
-
-        # fk = f_(k-1) + lr * g_k # f_k = lr * g_k + lr * g_(k-1) + ... + lr * g_1 + f_0
-    # r_t = f_K # done
-
-    # update the training set
-    # S_(t+1) = S_t + r_t()
-    # delta_S_(t+1) = actual shape S - S_(t+1)
-    updateShapes()
+def updateShapes(t):
     # S[i] += r(i) # r(I[pi[i]], S[i])
+    for i in range(N):
+        shapeEstimates[i] += strongRegressor[t].eval(I[pi[i]], shapeEstimates[i])
+
+def loadDetector(path=loadPath):
+    f = open(path, 'r')
+    faceDetector = pickle.load(f)
+    f.close()
+    return faceDetector
+
+def saveDetector(detector, path=savePath):
+    f = open(path, 'w')
+    pickle.dump(detector, f)
+    f.close()
+
+def learnFaceDetector(save=true):
+    loadData()
+    calculateMeanShape()
+    generateTrainingData()
+    for t in range(T):
+        samplePoints, samplePairs, priorWeights = samplePixels()
+        # learn the regression function using gradient boosting and a sum of square error loss
+        # f_i are the weak regressors
+        # f0 is the point at which the distance from that point to all the other points in the delta shape is at a minimum
+        strongRegressor[t] = new StrongRegressor(groundEstimate(shapeDeltas)) # f_0 is a median face shape, gamma, belonging to R^2p where p is the number of facial landmarks
+
+        calculateSimilarityTransforms()
+        for k in range(K):
+            # f_k is f_(k-1) of a guess ^S(t) plus lr * g_k of a guess ^S(t)
+            for i in range(N):
+                residuals[i][k] = shapeDelta[i] - strongRegressor[t].eval(I[pi[i]], shapeEstimates[i]) # is the delta shape - f of k-1 # compute residuals
+                # r_ik is a delta delta shape; r_ik also belongs to R^2p
+
+            # regression
+            # fit a regression tree to the 2p-dimensional targets r_ik giving a weak regression function g_k(I, S^(t))
+            # there are N targets r_ik (k is fixed; i = 1..N)
+
+            tree = fitRegressionTree(residuals)
+            strongRegressor[t].add(tree)
+
+            # fk = f_(k-1) + lr * g_k # f_k = lr * g_k + lr * g_(k-1) + ... + lr * g_1 + f_0
+        # r_t = f_K # done
+
+        # update the training set
+        # S_(t+1) = S_t + r_t()
+        # delta_S_(t+1) = actual shape S - S_(t+1)
+        updateShapes(t)
+        # S[i] += r(i) # r(I[pi[i]], S[i])
+
+    faceDetector = strongRegressors
+    if(save):
+        saveDetector(faceDetector, savePath)
+    return faceDetector
