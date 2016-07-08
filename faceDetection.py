@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+#coding: utf8
+
 '''
 # training time: about 1 hour with a single CPU on the HELEN dataset
 # runtime: about 1 millisecond per image
@@ -21,17 +24,31 @@ import random
 import math
 import pickle
 
+# class Split():
+#
+#     # def __new__(self):
+#     #     return tuple.__new__(self, split)
+#
+#
+#     def eval(image):
+# def split(i, tau, u1, v1):
+#     if I[pi[i]][u1] - I[pi[i]][v1] > tau: # compare intensities
+#         return 1 # left
+#     else:
+#         return 0 # right
+
+
 class StrongRegressor:
-    baseFunction # vector in R^2p
-    weakRegressors # array of RegressionTree
+    baseFunction = [] # vector in R^2p
+    weakRegressors = [] # array of RegressionTree
 
     def __init__(self, base):
         self.baseFunction = base
 
-    def add(weakRegressor):
+    def add(self, weakRegressor):
         weakRegressors.append(weakRegressor)
 
-    def eval(image, shape): # apply the strong regressor tree function
+    def eval(self, image, shape): # apply the strong regressor tree function
         # fk = f_(k-1) + lr * g_k # f_k = lr * g_k + lr * g_(k-1) + ... + lr * g_1 + f_0
         # r_t = f_K
         res = baseFunction # vector in R^2p
@@ -41,13 +58,15 @@ class StrongRegressor:
 
 class RegressionTree:
 
-    def __init__(self, node, leftTree=null, rightTree=null):
+    def __init__(self, node, depth=1, leftTree=None, rightTree=None):
         self.node = node
+        self.depth = depth
         self.leftTree = leftTree
         self.rightTree = rightTree
 
-    def eval(i):
+    def eval(self, image):
         # images, functions not defined
+        split(image, node[0], node[1], node[2])
 
 annotationPath = 'Users/frieda/Downloads/annotation/' # TODO use ~
 loadPath = 'faceDetector.pkl'
@@ -101,7 +120,7 @@ similarityTransforms = [] # triples of t, S, R
 
 
 def prior(u,v):
-    return math.exp(-lmbda*np.linalg.norm(u-v)) # np.linalg.norm(u-v) calculates the euclidean distance between two points u, v
+    return math.exp(-lmbda*np.linalg.norm(np.subtract(u,v))) # np.linalg.norm(u-v) calculates the euclidean distance between two points u, v
 
 # only once at each level of the cascade
 # "In practice the assignments and local translations are determined
@@ -126,17 +145,23 @@ def calculateSimilarityTransform(w, v):
     center_w = np.sum(w, 0)*1./len(w)
     center_v = np.sum(v, 0)*1./len(v)
 
-    B = np.dot(np.transpose(w), v)
-    U, s, V^ = np.linalg.svd(B)
+    # B = np.dot(np.transpose(w), v) THIS IS WRONG WRONG WRONG
+    # READ FIRST
+    B = np.cov(np.transpose(w), np.transpose(v))
+    U, s, V1 = np.linalg.svd(B)
     m = np.shape(U)[0]
-    n = np.shape(V^)[1]
+    n = np.shape(V1)[1]
     S = np.zeros((m, n))
     S[:n, :n] = np.diag(s)
 
-    M = np.zeros((m, n))
-    M[:n, :n] = np.diag(np.append(np.ones(n - 1), np.linalg.det(U) * np.linalg.det(V^)))
+    M = np.zeros((m, n)) # TODO M is square
+    if np.linalg.det(B) >= 0:
+        M = np.identity(n)
+    else:
+        # M[:n, :n] = np.diag(np.append(np.ones(n - 1), np.linalg.det(U) * np.linalg.det(V1)))
+        M[:n, :n] = np.diag(np.append(np.ones(n - 1), 1))
 
-    R = np.dot(U, np.dot(M, V^))
+    R = np.dot(U, np.dot(M, V1))
     # var = np.var(v) # np.var(np.sum(w, 0))
     var = 1./len(v) * np.sum(np.linalg.norm((v - center_v), axis=1)**2)
     c = 1./var*np.trace(np.dot(S, M))
@@ -157,13 +182,13 @@ def warpPoint(u, similarityTransform):
     k_u = closest(u, meanShape)
     delta_x_u = u - k_u # offset from u
     # s, R = calculate_similarity_transform(x, t)
-    u^ = = k_u + 1./S * np.dot(np.transpose(R), delta_x_u) # TODO check
-    return u^
+    u1 = k_u + 1./S * np.dot(np.transpose(R), delta_x_u) # TODO check
+    return u1
 
-def split(i, tau, u1, v1):
-    if I[pi[i]][u1] - I[pi[i]][v1] > tau: # compare intensities
+def split(image, tau, u1, v1):
+    if image[u1[0]][u1[1]] - image[v1[0]][v1[1]] > tau: # compare intensities
         return 1 # left
-    else
+    else:
         return 0 # right
 
 # returns Q_theta, l
@@ -175,7 +200,7 @@ def splitPoints(Q, theta):
         u1 = warpPoint(u, similarityTransforms[pi[i]])
         v1 = warpPoint(v, similarityTransforms[pi[i]])
         # return [i for i in Q if split(i, tau, u1, v1) == 1] http://stackoverflow.com/questions/949098/python-split-a-list-based-on-a-condition
-        left.append(i) if split(i, tau, u1, v1) == 1 else right.append(i)
+        left.append(i) if split(I[pi[i]], tau, u1, v1) == 1 else right.append(i)
     return left, right
 
 def tryNodeSplit(Q, mu, theta): # theta is a node split (tau, u, v)
@@ -226,29 +251,30 @@ def samplePixels():
     # run for each level of the cascade (T = 10)
     points = [(random.randint(0, meanWidth), random.randint(0, meanHeight)) for i in range(P)]
     pairs = [(points[i], points[j]) for i in range(len(points)) for j in range(len(points)) if i != j]
-    priorWeights = [prior(p) for p in pairs]
+    priorWeights = [prior(p[0], p[1]) for p in pairs]
+    priorWeights = [x / sum(priorWeights) for x in priorWeights]
     return points, pairs, priorWeights
 
 def samplePair():
     # sample two points from the sampled pixels based on our prior
     # order matters
-    return np.random.choice(samplePairs, p=priorWeights) # choose a pair given probability distribution priorWeights
+    return samplePairs[np.random.choice(len(samplePairs), p=priorWeights)] # choose a pair given probability distribution priorWeights
 
 def generateCandidateSplit():
     pair = samplePair()
-    threshold = random() # placeholder line
-    return threshold, pair
+    threshold = random.randint(0, 255) # TODO placeholder line
+    return Split(threshold, pair)
 
 def fitRegressionTree():
     # mu = 1 / len(Q) * sum([r[i] for i in Q])
     mu = np.mean(residuals, 0)
     tree = fitNode(range(N), mu, F) # F = 5; depth of tree
 
-def fitNode(Q, depth):
+def fitNode(Q, mu, depth):
     maxval = 0
     for i in range(S): # S = 20
         candidateSplit = generateCandidateSplit()
-        val, q_l, q_r, mu_l0, mu_r0 = tryNodeSplit(Q, candidateSplit)
+        val, q_l, q_r, mu_l0, mu_r0 = tryNodeSplit(Q, mu, candidateSplit)
         if val > maxval:
             maxval = val
             split = candidateSplit
@@ -257,9 +283,9 @@ def fitNode(Q, depth):
             mu_l = mu_l0
             mu_r = mu_r0
     tree = RegressionTree(split, depth)
-    if level > 0:
-        tree.leftTree = fitNode(Q_l, depth - 1)
-        tree.rightTree = fitNode(Q_r, depth - 1)
+    if depth > 0:
+        tree.leftTree = fitNode(Q_l, mu_l, depth - 1)
+        tree.rightTree = fitNode(Q_r, mu_r, depth - 1)
     return tree
 
 def loadData():
@@ -275,9 +301,10 @@ def initializeShapes():
     pass
 
 def calculateMeanShape():
-    meanShape =
-    meanWidth =
-    meanHeight =
+    # TODO
+    meanShape = []
+    meanWidth = 30
+    meanHeight = 30
 
 def generateTrainingData():
     pi = np.random.permutation(np.repeat(np.arange(N), R)) # TODO change to no fixed point
@@ -301,7 +328,7 @@ def saveDetector(detector, path=savePath):
     pickle.dump(detector, f)
     f.close()
 
-def learnFaceDetector(save=true):
+def learnFaceDetector(save=True):
     loadData()
     calculateMeanShape()
     generateTrainingData()
@@ -310,7 +337,8 @@ def learnFaceDetector(save=true):
         # learn the regression function using gradient boosting and a sum of square error loss
         # f_i are the weak regressors
         # f0 is the point at which the distance from that point to all the other points in the delta shape is at a minimum
-        strongRegressor[t] = new StrongRegressor(groundEstimate(shapeDeltas)) # f_0 is a median face shape, gamma, belonging to R^2p where p is the number of facial landmarks
+        strongRegressor[t] = StrongRegressor(groundEstimate(shapeDeltas))
+        # f_0 is a median face shape, gamma, belonging to R^2p where p is the number of facial landmarks
 
         calculateSimilarityTransforms()
         for k in range(K):
