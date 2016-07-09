@@ -11,8 +11,8 @@ class FaceDetector:
                     if i < height and j < width and i >= 0 and j >= 0:
                         image[j,i] = 255
         return image
-    def saveImage(image, path=savePath):
-        cv2.imwrite(path + '_temp_' + str(x) + '.jpg', image)
+    def saveImage(image, path=resultsPath):
+        cv2.imwrite(path + '_temp_' + str(x) + '.jpg', image) # TODO
     def detectFace(self, image):
         transform = (1, np.identity(2), 0) # identity transform
         predictedShape = meanShape

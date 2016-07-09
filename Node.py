@@ -22,3 +22,17 @@ def tryNodeSplit(Q, mu, theta):
     #     maxval = val
     #     argmax = theta
     return val, Q_l, Q_r, mu_theta_l, mu_theta_r
+def split(image, tau, u, v, shapeEstimate, similarityTransform):
+    u1 = warpPoint(u, meanShape, shapeEstimate, similarityTransform)
+    v1 = warpPoint(v, meanShape, shapeEstimate, similarityTransform)
+    # print image[u1[0]][u1[1]]
+    # print image[v1[0]][v1[1]] # TODO were the same
+    w, h = np.shape(image)
+    im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
+    im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
+    if im_u - im_v > tau:
+    # if int(image[u1[1],u1[0]]) - int(image[v1[1],v1[0]]) > tau: # doesn't matter
+    # if int(image[u1[0]][u1[1]]) - int(image[v1[0]][v1[1]]) > tau:
+        return 1
+    else:
+        return 0

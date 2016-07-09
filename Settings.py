@@ -1,7 +1,7 @@
 basePath = '/Users/frieda/Downloads/'
-loadPath = 'faceDetector.pkl'
-savePath = loadPath
-saveTestPath = 'test'
+resultsPath = 'results/faceDetector.pkl'
+tempPath = 'results/temp_'
+testPath = 'results/test_'
 lr = 0.1
 T = 1
 K = 100

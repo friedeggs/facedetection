@@ -1,10 +1,10 @@
 from Settings import *
-def load(path=loadPath):
+def load(path=resultsPath):
     f = open(path, 'r')
     obj = pickle.load(f)
     f.close()
     return obj
-def save(obj, path=savePath):
+def save(obj, path=resultsPath):
     f = open(path, 'w')
     pickle.dump(obj, f)
     f.close()
