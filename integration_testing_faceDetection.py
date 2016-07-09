@@ -9,15 +9,14 @@ import random
 import math
 import pickle
 class StrongRegressor:
-    baseFunction = []
-    weakRegressors = []
     def __init__(self, base):
-        self.baseFunction = base
+        self.baseFunction = np.copy(base)
+        self.weakRegressors = []
     def add(self, weakRegressor):
         self.weakRegressors.append(weakRegressor)
     def eval(self, image, shapeEstimate, shapeTransform):
         # res = applyInverseTransform(shapeTransform, self.baseFunction)
-        res = self.baseFunction
+        res = np.copy(self.baseFunction)
         for weakRegressor in self.weakRegressors:
             res += lr * weakRegressor.eval(image, shapeEstimate, shapeTransform) # TODO is it self.baseFunction? or is it shapeEstimate?
         return res
@@ -31,22 +30,24 @@ class RegressionTree:
         if self.depth == 1: # leaf
             return self.node # need to transform???? No, right? because these are the residuals, which we did not transform when computing
         if split(image, self.node[0], self.node[1], self.node[2], shapeEstimate, shapeTransform) == 1:
+        # if split2(node[1], node[2], shapeEstimate) == 1:
             return self.leftTree.eval(image, shapeEstimate, shapeTransform)
         else:
             return self.rightTree.eval(image, shapeEstimate, shapeTransform)
     def leaves(self):
         if self.depth == 1: # leaf
-            return self.node
-        return self.leftTree.leaves(), self.rightTree.leaves()
+            # print self.node
+            return self.node[:5]
+        return self.leftTree.leaves() #, self.rightTree.leaves()
 basePath = '/Users/frieda/Downloads/'
 loadPath = 'faceDetector.pkl'
 savePath = loadPath
 saveTestPath = 'test'
 lr = 0.1
 T = 1
-K = 100
-F = 5
-P = 400
+K = 50
+F = 4
+P = 20
 S = 20
 n = 10
 R = 2 # Use 1 initialization instead? >:(
@@ -70,11 +71,13 @@ samplePairs = []
 priorWeights = []
 random.seed()
 similarityTransforms = []
+lastTime = time.time()/1000
 def prior(u,v):
     return math.exp(-lmbda*np.linalg.norm(np.subtract(u,v)))
 def calculateSimilarityTransforms():
     global similarityTransforms
     similarityTransforms = [calculateSimilarityTransform(meanShape, shapeEstimates[i]) for i in range(N)]
+    saveDetector(similarityTransforms, 'similarity_transforms.pkl')
     return similarityTransforms
 def calculateSimilarityTransform(w, v):
     ''' Calculate similarity transform for a given face estimate '''
@@ -117,6 +120,15 @@ def warpPoint(u, X, Y, similarityTransform): # TODO check
     delta_x_u = u - X[k_u]
     u1 = Y[k_u] + 1./S * np.dot(np.transpose(R), delta_x_u)
     return u1
+def split_diff(image, tau, u, v, shapeEstimate, similarityTransform):
+    u1 = warpPoint(u, meanShape, shapeEstimate, similarityTransform)
+    v1 = warpPoint(v, meanShape, shapeEstimate, similarityTransform)
+    # print image[u1[0]][u1[1]]
+    # print image[v1[0]][v1[1]] # TODO were the same
+    w, h = np.shape(image)
+    im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
+    im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
+    return im_u - im_v
 def split(image, tau, u, v, shapeEstimate, similarityTransform):
     u1 = warpPoint(u, meanShape, shapeEstimate, similarityTransform)
     v1 = warpPoint(v, meanShape, shapeEstimate, similarityTransform)
@@ -131,23 +143,37 @@ def split(image, tau, u, v, shapeEstimate, similarityTransform):
         return 1
     else:
         return 0
+def split2(m1, m2, p):
+    d1 = np.linalg.norm(m1-p)
+    d2 = np.linalg.norm(m2-p)
+    return 1 if d1 < d2 else 0
+def splitPoints2(Q, theta): # [CHECKED]
+    tau, u, v = theta
+    thresholds = [split_diff(I[pi[i]], tau, u, v, shapeEstimates[i], similarityTransforms[i]) for i in Q]
+    total = [x for (y,x) in sorted(zip(thresholds,Q))]
+    cutoff = random.randint(1, len(Q)-1)
+    left = total[cutoff:]
+    right = total[:cutoff]
+    tau = (thresholds[cutoff-1] + thresholds[cutoff])/2 # TODO should be changed
+    return left, right, (tau, u, v)
 def splitPoints(Q, theta):
     # print theta
     tau, u, v = theta
     left, right = [], []
     for i in Q:
         left.append(i) if split(I[pi[i]], tau, u, v, shapeEstimates[i], similarityTransforms[i]) == 1 else right.append(i)
-    return left, right
+        # left.append(i) if split2(u, v, residuals[i]) == 1 else right.append(i)
+    return left, right, theta
 def tryNodeSplit(Q, mu, theta):
     # maxval = 0
-    Q_l, Q_r = splitPoints(Q, theta)
-    if len(Q_l) == 0:
-        mu_theta_l = 0
+    Q_l, Q_r, theta = splitPoints2(Q, theta)
+    if len(Q_l) == 0: # TODO: remove; shouldn't happen anymore with second implmentation (if keeping that implementation)
+        mu_theta_l = np.zeros(np.shape(mu))
         mu_theta_r = np.mean([residuals[i] for i in Q_r], 0)
     else:
         mu_theta_l = np.mean([residuals[i] for i in Q_l], 0)
         if len(Q_r) == 0:
-            mu_theta_r = 0
+            mu_theta_r = np.zeros(np.shape(mu))
         else:
             mu_theta_r = (len(Q)*mu - len(Q_l) * mu_theta_l) / len(Q_r)
     val = len(Q_l) * np.linalg.norm(mu_theta_l) + len(Q_r) * np.linalg.norm(mu_theta_r)
@@ -173,16 +199,23 @@ def generateCandidateSplit():
     threshold = random.randint(76, 178) # random.randint(0, 255) # TODO placeholder
     return threshold, pair[0], pair[1] # TODO made in haste
 def fitRegressionTree():
+    print np.shape(residuals)
+    # mu = np.mean(np.reshape(residuals, (20, 194, 2)), 0)
     mu = np.mean(residuals, 0)
     tree = fitNode(range(N), mu, F)
     return tree
 def fitNode(Q, mu, depth):
-    if depth == 1 or len(Q) == 0: # TODO check if should be 0 instead
+    if depth == 1 or len(Q) == 1: # TODO check if should be 0 instead
         return RegressionTree(mu) # Leaf node
     maxval = 0
     for i in range(S):
         candidateSplit = generateCandidateSplit()
         val, q_l, q_r, mu_l0, mu_r0 = tryNodeSplit(Q, mu, candidateSplit)
+        print "---------"
+        print mu[0], mu[1]
+        print mu_l0[0]
+        print mu_r0[0], val, len(Q), depth
+        print candidateSplit
         if val > maxval:
             maxval = val
             split = candidateSplit
@@ -201,6 +234,7 @@ def fitNode(Q, mu, depth):
     return tree
 def loadData():
     ''' Load images?!?!?! and shapes '''
+    global shapes, I
     for i in range(n):
         filePath = basePath + 'annotation/' + str(i+1) + '.txt'
         imagePath = ""
@@ -232,20 +266,51 @@ def updateShapes(t):
     for i in range(N):
         shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i])
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
-def learnFaceDetector(save=True, test=True):
+def markTime():
+    global lastTime
+    thisTime = time.time()/1000
+    print "Time elapsed: %s", thisTime - lastTime
+    lastTime = thisTime
+def testFitTree():
+    data = loadDetector('residuals.pkl')
+    # print np.shape(data), data[0]
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     loadData()
     calculateMeanShape()
-    # print meanWidth
-    # print meanHeight
     generateTrainingData()
+    samplePoints, samplePairs, priorWeights = samplePixels()
+    for i in range(N/2):
+        residuals[i] = np.random.normal(loc=3, scale=2, size=np.shape(meanShape))
+    for i in range(N/4):
+        residuals[i+N/2] = np.random.normal(loc=20, scale=3, size=np.shape(meanShape))
+    for i in range(N/4):
+        residuals[i+3*N/4] = np.random.normal(loc=-100, scale=1, size=np.shape(meanShape))
+    h, w = np.shape(meanShape)
+    # residuals.reshape((N, h, w))
+    tree = fitRegressionTree()
+    for i in N:
+        print tree.eval(I[0], residuals[i], None)[:5], residuals[i][:5]
+def learnFaceDetector(save=True, test=True):
+    global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
+    # markTime()
+    loadData()
+    # markTime()
+    calculateMeanShape()
+    # markTime()
+    generateTrainingData()
+    # markTime()
     for t in range(T):
+        markTime()
         samplePoints, samplePairs, priorWeights = samplePixels()
+        markTime()
         ''' Get mean shape '''
         print "Learning strong regressor ", str(t+1)
         strongRegressors[t] = StrongRegressor(groundEstimate(shapeDeltas))
+        markTime()
         print "Calculating similarity transforms"
         calculateSimilarityTransforms()
+        markTime()
+        # similarityTransforms = loadDetector('similarity_transforms.pkl')
         ''' Calculate similarity transforms for each shape estimate '''
         print "Computing residuals"
         for k in range(K):
@@ -257,14 +322,17 @@ def learnFaceDetector(save=True, test=True):
                 # I[pi[i]]
                 # similarityTransforms[i]
                 residuals[i] = shapeDeltas[i] - strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i]) # strongRegressor[t] is the current collection of weak regressors g_1..g_k_1 that make up f_k_1
+            markTime()
             print "Fitting weak regression tree ", str(k+1)
             tree = fitRegressionTree()
+            markTime()
             strongRegressors[t].add(tree)
             print tree.leaves()
             if k % 20 == 0:
                 saveDetector(strongRegressors[t], 'weak_regressors_' + str(k+1) + '.pkl')
         print "Updating shape estimates"
         updateShapes(t)
+        markTime()
         saveDetector(strongRegressors[t], 'strong_regressor_' + str(t+1) + '.pkl')
         if test:
             predictedShape = detectFace(strongRegressors, I[0])
@@ -312,58 +380,24 @@ def detectFace(faceDetector, image):
             cv2.imwrite(saveTestPath + '_temp_' + str(x) + '.jpg', image)
             x += 1
     return predictedShape
-if __name__ == '__main__':
-    detector = learnFaceDetector()
-    # # global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
-    # loadData()
-    # calculateMeanShape()
-    # generateTrainingData()
-    # for t in range(T):
-    #     samplePoints, samplePairs, priorWeights = samplePixels()
-    #     ''' Get mean shape '''
-    #     print "Learning strong regressor ", str(t+1)
-    #     # shapeTransform = calculateSimilarityTransform(meanShape, shapes[pi[i]])
-    #     # estimate = applyInverseTransform(shapeTransform, self.baseFunction)
-    #     strongRegressors[t] = StrongRegressor(groundEstimate(shapeDeltas))
-    #     print "Calculating similarity transforms"
-    #     calculateSimilarityTransforms()
-    #     ''' Calculate similarity transforms for each shape estimate '''
-    #     print "Computing residuals"
-    #     for k in range(K):
-    #         for i in range(N):
-    #             ''' Evaluate on each image to calculate residuals '''
-    #             residuals[i] = shapeDeltas[i] - strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i]) # strongRegressor[t] is the current collection of weak regressors g_1..g_k_1 that make up f_k_1
-    #         # print residuals
-    #         print "Fitting weak regression tree ", str(k+1)
-    #         tree = fitRegressionTree()
-    #         strongRegressors[t].add(tree)
-    #         # print strongRegressors[t].eval(I[0], shapeEstimates[0], similarityTransforms[0])
-    #         print tree.leaves()
-    #         if k % 50 == 0:
-    #             saveDetector(strongRegressors[t], 'weak_regressors_' + str(k+1) + '.pkl')
-    #     print "Updating shape estimates"
-    #     updateShapes(t)
-    #     saveDetector(strongRegressors[t], 'strong_regressor_' + str(t+1) + '.pkl')
-    # faceDetector = strongRegressors
-    # if(save):
-    #     saveDetector(faceDetector, savePath)
-def test():
+def run_test():
     loadData()
     calculateMeanShape()
     detector = loadDetector()
-    predictedShape = detectFace(detector, I[0])
-    print predictedShape
-    image = I[0].copy()
-    width, height = np.shape(image)
-    s = 5
-    for a,b in predictedShape:
-        a = int(a)
-        b = int(b)
-        for i in range(a-s, a+s):
-            for j in range(b-s,b+s):
-                if i < height and j < width and i >= 0 and j >= 0:
-                    image[j,i] = 255
-    cv2.imwrite(saveTestPath + '.jpg', image)
+    for T in range(5,10):
+        predictedShape = detectFace(detector, I[T])
+        print predictedShape
+        image = I[T].copy()
+        width, height = np.shape(image)
+        s = 5
+        for a,b in predictedShape:
+            a = int(a)
+            b = int(b)
+            for i in range(a-s, a+s):
+                for j in range(b-s,b+s):
+                    if i < height and j < width and i >= 0 and j >= 0:
+                        image[j,i] = 255
+        cv2.imwrite(saveTestPath + '_checkpoint_' + str(T) + '.jpg', image)
 def displayPrediction(im, predictedShape, show=False, savePath=None):
     image = im.copy()
     width, height = np.shape(image)
@@ -398,3 +432,41 @@ def displayPrediction(im, predictedShape, show=False, savePath=None):
     #     cv2.waitKey()
     if savePath:
         cv2.imwrite(savePath + '.jpg', image)
+if __name__ == '__main__':
+    # testFitTree()
+    # detector = learnFaceDetector()
+    run_test()
+
+    # # global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
+    # loadData()
+    # calculateMeanShape()
+    # generateTrainingData()
+    # for t in range(T):
+    #     samplePoints, samplePairs, priorWeights = samplePixels()
+    #     ''' Get mean shape '''
+    #     print "Learning strong regressor ", str(t+1)
+    #     # shapeTransform = calculateSimilarityTransform(meanShape, shapes[pi[i]])
+    #     # estimate = applyInverseTransform(shapeTransform, self.baseFunction)
+    #     strongRegressors[t] = StrongRegressor(groundEstimate(shapeDeltas))
+    #     print "Calculating similarity transforms"
+    #     calculateSimilarityTransforms()
+    #     ''' Calculate similarity transforms for each shape estimate '''
+    #     print "Computing residuals"
+    #     for k in range(K):
+    #         for i in range(N):
+    #             ''' Evaluate on each image to calculate residuals '''
+    #             residuals[i] = shapeDeltas[i] - strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i]) # strongRegressor[t] is the current collection of weak regressors g_1..g_k_1 that make up f_k_1
+    #         # print residuals
+    #         print "Fitting weak regression tree ", str(k+1)
+    #         tree = fitRegressionTree()
+    #         strongRegressors[t].add(tree)
+    #         # print strongRegressors[t].eval(I[0], shapeEstimates[0], similarityTransforms[0])
+    #         print tree.leaves()
+    #         if k % 50 == 0:
+    #             saveDetector(strongRegressors[t], 'weak_regressors_' + str(k+1) + '.pkl')
+    #     print "Updating shape estimates"
+    #     updateShapes(t)
+    #     saveDetector(strongRegressors[t], 'strong_regressor_' + str(t+1) + '.pkl')
+    # faceDetector = strongRegressors
+    # if(save):
+    #     saveDetector(faceDetector, savePath)
