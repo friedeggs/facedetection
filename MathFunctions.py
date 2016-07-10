@@ -1,3 +1,6 @@
+import math
+import numpy as np
+from Settings import *
 def prior(u,v):
     return math.exp(-lmbda*np.linalg.norm(np.subtract(u,v)))
 def calculateSimilarityTransform(w, v):

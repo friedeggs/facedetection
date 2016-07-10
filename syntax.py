@@ -1,6 +1,7 @@
 import random
 import numpy as np
-
+from syntax_class import SyntaxClass
+from syntax_test import X
 n = 5
 R = 2
 N = n*R
@@ -25,11 +26,24 @@ def modify():
     for i in range(N):
         other_arr[i] = other_arr[i] + 2
 
+def modify2():
+    global other_arr, my_arr, xarr
+    my_arr = np.ones(n)
+    other_arr = my_arr
+    for i in range(n):
+        other_arr[i] = other_arr[i] + 2
+    print my_arr, other_arr
+    my_arr = np.ones(n)
+    other_arr = my_arr
+    other_arr += 2 # of interest
+    print my_arr, other_arr
+
 def reveal():
     set()
     set_else()
     modify()
-    print my_arr, xarr
+    print my_arr, other_arr, xarr
+    modify2()
 
 def foo():
     maxa = 0
@@ -44,4 +58,14 @@ def foo():
     print a
 
 if __name__ == '__main__':
-    # reveal()
+    global X
+    reveal()
+    print X
+    a = SyntaxClass(3)
+    print X
+    X = 4
+    # print a.obj
+    # print a.obj.a
+    a.say()
+    print X
+    # a.obj.hello()

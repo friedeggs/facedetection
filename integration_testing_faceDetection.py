@@ -40,7 +40,7 @@ class RegressionTree:
             return self.node[:5]
         return self.leftTree.leaves() #, self.rightTree.leaves()
 basePath = '/Users/frieda/Downloads/'
-loadPath = 'faceDetector.pkl'
+loadPath = 'results/faceDetector.pkl'
 savePath = loadPath
 saveTestPath = 'test'
 lr = 0.1
@@ -329,11 +329,11 @@ def learnFaceDetector(save=True, test=True):
             strongRegressors[t].add(tree)
             print tree.leaves()
             if k % 20 == 0:
-                saveDetector(strongRegressors[t], 'weak_regressors_' + str(k+1) + '.pkl')
+                saveDetector(strongRegressors[t], 'weak_regressors_' + str(k+1))
         print "Updating shape estimates"
         updateShapes(t)
         markTime()
-        saveDetector(strongRegressors[t], 'strong_regressor_' + str(t+1) + '.pkl')
+        saveDetector(strongRegressors[t], 'strong_regressor_' + str(t+1))
         if test:
             predictedShape = detectFace(strongRegressors, I[0])
             image = I[0].copy()
@@ -384,9 +384,9 @@ def run_test():
     loadData()
     calculateMeanShape()
     detector = loadDetector()
-    for T in range(5,10):
+    for T in range(1,10):
         predictedShape = detectFace(detector, I[T])
-        print predictedShape
+        # print predictedShape
         image = I[T].copy()
         width, height = np.shape(image)
         s = 5
@@ -463,10 +463,10 @@ if __name__ == '__main__':
     #         # print strongRegressors[t].eval(I[0], shapeEstimates[0], similarityTransforms[0])
     #         print tree.leaves()
     #         if k % 50 == 0:
-    #             saveDetector(strongRegressors[t], 'weak_regressors_' + str(k+1) + '.pkl')
+    #             saveDetector(strongRegressors[t], 'weak_regressors_' + str(k+1))
     #     print "Updating shape estimates"
     #     updateShapes(t)
-    #     saveDetector(strongRegressors[t], 'strong_regressor_' + str(t+1) + '.pkl')
+    #     saveDetector(strongRegressors[t], 'strong_regressor_' + str(t+1))
     # faceDetector = strongRegressors
     # if(save):
     #     saveDetector(faceDetector, savePath)

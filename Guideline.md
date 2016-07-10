@@ -41,3 +41,32 @@ If working interactively, you can use `reload(modulename`).
 
 # Relative imports
 `from ..filters import equalizer`
+
+# Warning
+`my_numpy_array += 2` maintains the original reference
+same for python lists
+```py
+a = [0,1,2]
+b = a
+a += [3, 4] # a = [0, 1, 2, 3, 4]
+            # b = [0, 1, 2, 3, 4]
+a = [5, 6]  # a = [5, 6]
+            # b = [0, 1, 2, 3, 4]
+```
+
+# Printing Formatting
+```py
+x = 1./7
+print "%s" % x # 0.142857142857
+print "%f" % x # 0.142857
+print "%d" % x # 0
+print "%.2f" % x # 0.14
+print "%.2d" % x # 00
+x += 1234
+print "%.2f" % x # 1234.14
+print "%.2s" % x # 12
+print "%5.2s" % x #    12 # pad up to 5 characters
+```
+
+# Common Mistake to Avoid
+http://stackoverflow.com/questions/1132941/least-astonishment-in-python-the-mutable-default-argument
