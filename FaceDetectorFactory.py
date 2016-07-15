@@ -15,7 +15,7 @@ random.seed()
 strongRegressors = [[] for i in range(T)]
 shapeDeltas = [[] for i in range(N)]
 pi = []
-shapes = [[] for i in range(n)]
+# shapes = [[] for i in range(n)]
 I = [[] for i in range(n)]
 residuals = [[] for i in range(N)]
 def calculateSimilarityTransforms():
@@ -34,7 +34,7 @@ def loadData(): # [CHECKED]
         with open(filePath, 'r') as f:
             imagePath = f.readline().rstrip('\n').rstrip('\r')
             shapes[i] = np.array([[float(s) for s in line.rstrip('\n').rstrip('\r').split(',')] for line in f.readlines()])
-            I[i] = cv2.imread(basePath + 'images/' + imagePath + '.jpg', cv2.IMREAD_GRAYSCALE)
+            I[i] = cv2.imread(basePath + 'images/' + imagePath + '.jpg', 0)# cv2.IMREAD_GRAYSCALE)
 def calculateMeanShape(): # [CHECKED]
     ''' Calculate mean shape and bounding box shape of all faces '''
     # TODO placeholder implementation right now
@@ -47,10 +47,15 @@ def generateTrainingData(): # [CHECKED]
     # pi = np.random.permutation(np.repeat(np.arange(N), R)) # why does it even need to be random? order never matters
     global shapeEstimates, shapeDeltas, shapes, pi
     pi = np.repeat(np.arange(N), R)
+    FaceDetector.meanRectangle = (
+                meanWidthX,
+                meanHeightX,
+                meanWidthY - meanWidthX,
+                meanHeightY - meanHeightY)
     for i in range(n):
         sample = random.sample(range(n), R) # array of length 20 containing indices
-        for j in range(R):
-            shapeEstimates[i*R+j] = shapes[sample[j]] # TODO not a problem
+        for j in range(R): # for efficiency don't call detectFaceRectangle R times
+            shapeEstimates[i*R+j] = adjustToFit(shapes[i], detectFaceRectangle(I[i])) # TODO not a problem
     for i in range(N):
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
     return pi
@@ -59,7 +64,7 @@ def updateShapes(t):
     for i in range(N):
         shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i])
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
-def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False):
+def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, debug=True):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     try:
         print "Loading data"
@@ -82,7 +87,15 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False):
             calculateSimilarityTransforms()
             markTime()
             ''' Calculate similarity transforms for each shape estimate '''
-            print "Computing residuals"
+            # print "Computing residuals"
+            # for j in range(10):
+            #     # predictedShape = detectFace(strongRegressors, I[0])
+            #     predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[j])
+            #     image = markImage(I[j], predictedShape)
+            #     width, height = np.shape(image)
+            #     cv2.imwrite(resultsPath + 'debug_' + str(t+1) + '_' + str(j) + '.jpg', image)
+            #     markTime()
+            # raw_input()
             for k in range(K):
                 for i in range(N):
                     ''' Evaluate on each image to calculate residuals '''
@@ -92,42 +105,77 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False):
                 markTime()
                 strongRegressors[t].add(tree)
                 print tree.leaves()
-                if saveIntermediates and k % 20 == 0:
-                    save(strongRegressors[t], 'weak_regressors_' + str(t) + '-' + str(k))
+                if saveIntermediates and (k+1) % 20 == 0:
+                    save(strongRegressors[t], 'weak_regressors_' + str(t) + '-' + str(k+1))
+                if debug and (k+1) % 10 == 0:
+                    for j in range(10):
+                        # predictedShape = detectFace(strongRegressors, I[0])
+                        predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[j])
+                        image = markImage(I[j], predictedShape)
+                        width, height = np.shape(image)
+                        cv2.imwrite(resultsPath + 'debug_' + str(t+1) + '_' + str(j) + '.jpg', image)
+                        markTime()
+                    raw_input()
             print "Updating shape estimates"
             updateShapes(t)
             markTime()
             save(strongRegressors[t], tempPath + 'strong_regressor_' + str(t+1))
             if test:
-                # predictedShape = detectFace(strongRegressors, I[0])
-                predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[0])
-                image = markImage(I[0], predictedShape)
-                width, height = np.shape(image)
-                cv2.imwrite(tempPath + str(t+1) + '.jpg', image)
+                for i in range(10):
+                    # predictedShape = detectFace(strongRegressors, I[0])
+                    predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[i])
+                    image = markImage(I[i], predictedShape)
+                    width, height = np.shape(image)
+                    cv2.imwrite(resultsPath + tempPath + str(t+1) + '_' + str(i) + '.jpg', image)
+                    markTime()
     finally:
         save(strongRegressors, tempPath + 'strong_regressor_saved')
         markTime()
     faceDetector = FaceDetector(meanShape, strongRegressors)
     if(saveDetector):
-        save(faceDetector, 'face_detector')
+        save(faceDetector, 'face_detector_4')
     return faceDetector
 def test():
     loadData()
-    calculateMeanShape()
-    # detector = load('face_detector')
-    strongRegressors = load('temp_strong_regressor_saved')
-    detector = FaceDetector(meanShape, strongRegressors)
-    for i in range(10,20):
+    # calculateMeanShape()
+    detector = load('face_detector_4')
+    # strongRegressors = load('temp_strong_regressor_saved')
+    # detector = FaceDetector(meanShape, strongRegressors)
+    for i in range(0,20):
         predictedShape = detector.detectFace(I[i])
         # print predictedShape[:2]
         imageCenter = np.array(np.shape(I[i]))/2
         shapeCenter = np.mean(predictedShape, 0)
-        # predictedShape -= (shapeCenter - imageCenter)
+        predictedShape -= (shapeCenter - imageCenter)
         image = markImage(I[i], predictedShape)
         cv2.imwrite(resultsPath + testPath + str(i) + '.jpg', image)
 if __name__ == '__main__':
     # detector = learnFaceDetector(saveIntermediates=True)
-    test()
+    loadData()
+    calculateMeanShape()
+    global shapeEstimates, shapeDeltas, shapes, pi
+    FaceDetector.meanRectangle = (
+                meanWidthX,
+                meanHeightX,
+                meanWidthY - meanWidthX,
+                meanHeightY - meanHeightY)
+    window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
+    width = 1000
+    height = 800
+    cv2.resizeWindow('Rectangle', 1000, 800)
+    for i in range(n):
+        rect, im = detectFaceRectangle(I[i]) # TODO not a problem
+        x,y,w,h = rect
+        # im = I[i] #.copy()
+        thickness = 5
+        cv2.line(im, (x,y), (x,y+h), thickness)
+        cv2.line(im, (x,y+h), (x+w,y+h), thickness)
+        cv2.line(im, (x+w,y+h), (x+w,y), thickness)
+        cv2.line(im, (x+w,y), (x,y), thickness)
+        res = cv2.resize(im,(width, height))
+        cv2.imshow('Rectangle', res)
+        cv2.waitKey()
+    # test()
     # strongRegressors = load('temp_strong_regressor_saved_')
     # print strongRegressors[0].weakRegressors[0].node[:5]
     markTime()

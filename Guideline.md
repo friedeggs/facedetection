@@ -68,5 +68,12 @@ print "%.2s" % x # 12
 print "%5.2s" % x #    12 # pad up to 5 characters
 ```
 
-# Common Mistake to Avoid
+# Common Mistake to Avoid - Declaring Methods
 http://stackoverflow.com/questions/1132941/least-astonishment-in-python-the-mutable-default-argument
+
+# Tuples vs Lists
+http://stackoverflow.com/questions/8900166/whats-the-difference-between-lists-enclosed-by-square-brackets-and-parentheses
+Adding to list changes the original list unlike tuples, which are immutable
+
+# OpenCV Face Detectors
+/usr/local/Cellar/opencv3/3.1.0/share/OpenCV/haarcascades

@@ -16,3 +16,10 @@ class Functions(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+    loadData()
+    calculateMeanShape()
+    image = markImage(I[0], shapes[0])
+    image = markImage(image, shapes[1])
+    image = markImage(image, adjustToFit(shapes[0], shapes[1]))
+    cv2.imwrite('adjust_to_fit_test.jpg', image)

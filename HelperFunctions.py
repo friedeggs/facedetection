@@ -7,7 +7,7 @@ import math
 import pickle
 from Settings import *
 random.seed()
-startTime = time.time()/100
+startTime = time.time()
 lastTime = startTime
 def load(filename):
     f = open(resultsPath + filename + '.pkl', 'r')
@@ -20,8 +20,8 @@ def save(obj, filename):
     f.close()
 def markTime():
     global lastTime
-    thisTime = time.time()/100
-    print "\t\t -- Total time elapsed: %7.2fs, Time since last: %7.2f" % ((thisTime - startTime), (thisTime - lastTime))
+    thisTime = time.time()
+    print "\t\t -- Total time elapsed: %9.2fs, Time since last: %9.2f" % ((thisTime - startTime), (thisTime - lastTime))
     lastTime = thisTime
 def markImage(im, predictedShape, markSize=5):
     image = im.copy()
