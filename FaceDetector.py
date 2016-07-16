@@ -10,7 +10,9 @@ cascadePaths = [
     'data/haarcascade_frontalface_alt.xml',
     'data/haarcascade_frontalface_alt2.xml',
     'data/haarcascade_profileface.xml',
-    'data/haarcascade_frontalface_alt_tree.xml'
+    'data/haarcascade_frontalface_alt_tree.xml',
+    'data/haarcascade_frontalcatface.xml',
+    'data/haarcascade_frontalcatface_extended.xml'
     ]
 faceCascades = [cv2.CascadeClassifier(path) for path in cascadePaths]
 window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
@@ -27,7 +29,7 @@ class FaceDetector:
         self.meanRectangle = (x,y,X-x,Y-y) # meanRectangle # or compute meanRectangle from meanShape
     def detectFace(self, image):
         transform = (1, np.identity(2), 0) # identity transform
-        shapeRectangle = detectFaceRectangle(image)
+        shapeRectangle, im = detectFaceRectangle(image)
         predictedShape = adjustToFit(self.meanShape, shapeRectangle)
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
@@ -52,9 +54,9 @@ def detectFaceRectangle(image): # TODO test
             index += 1
             faces = faceCascades[index].detectMultiScale(
                         image, # should be grayscale - gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                        scaleFactor=1.01,
-                        minNeighbors=1,
-                        minSize=(width/4, height/4))
+                        scaleFactor=1.05,
+                        minNeighbors=3,
+                        minSize=(width/3, height/3))
             print faces
         # if len(faces) == 0:
         #     im = image.copy()
@@ -63,7 +65,8 @@ def detectFaceRectangle(image): # TODO test
         #     borderh = 3*height/8
         #     im = cv2.resize(im, (width/4, height/4))
         #     im = cv2.copyMakeBorder(im, borderh, borderh, borderw, borderw, cv2.BORDER_WRAP)
-        #     cv2.imshow('Rectangle', im)
+        #     res = cv2.resize(im,(width, height))
+        #     cv2.imshow('Rectangle', res)
         #     cv2.waitKey()
         #     print("trying second scale factor")
         #     faces = faceCascade.detectMultiScale(
