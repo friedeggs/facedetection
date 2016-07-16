@@ -180,22 +180,25 @@ def testFaceDetector():
     height = 800
     cv2.resizeWindow('Rectangle', 1000, 800)
     for i in range(n):
-        rect, im = detectFaceRectangle(I[i]) # TODO not a problem
-        rect2 = adjustRect(rect)
-        x,y,w,h = rect2
-        # im = I[i] #.copy()
-        thickness = 5
-        cv2.line(im, (x,y), (x,y+h), thickness)
-        cv2.line(im, (x,y+h), (x+w,y+h), thickness)
-        cv2.line(im, (x+w,y+h), (x+w,y), thickness)
-        cv2.line(im, (x+w,y), (x,y), thickness)
-        im = markImage(im, adjustToFit(meanShape, rect2))
+        im = I[i].copy()
+        for j in range(3):
+            rect, im2 = detectFaceRectangle(I[i], j) # TODO not a problem
+            rect2 = adjustRect(rect)
+            x,y,w,h = rect2
+            # im = I[i] #.copy()
+            thickness = 5
+            cv2.line(im, (x,y), (x,y+h), thickness)
+            cv2.line(im, (x,y+h), (x+w,y+h), thickness)
+            cv2.line(im, (x+w,y+h), (x+w,y), thickness)
+            cv2.line(im, (x+w,y), (x,y), thickness)
+            if j == 0:
+                im = markImage(im, adjustToFit(meanShape, rect2))
         res = cv2.resize(im,(width, height))
         cv2.imshow('Rectangle', res)
         cv2.waitKey()
 if __name__ == '__main__':
-    detector = learnFaceDetector(saveIntermediates=True)
-
+    # detector = learnFaceDetector(saveIntermediates=True)
+    testFaceDetector()
     # test()
     # strongRegressors = load('temp_strong_regressor_saved_')
     # print strongRegressors[0].weakRegressors[0].node[:5]

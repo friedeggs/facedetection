@@ -4,7 +4,8 @@ from Settings import *
 from MathFunctions import calculateSimilarityTransform
 cascadePath = 'data/lbpcascade_frontalface.xml'
 faceCascade = cv2.CascadeClassifier(cascadePath)
-cascadePaths = [
+cascadePaths = [[
+    'data/lbpcascade_frontalface.xml',
     'data/lbpcascade_profileface.xml',
     'data/haarcascade_frontalface_default.xml',
     'data/haarcascade_frontalface_alt.xml',
@@ -13,8 +14,20 @@ cascadePaths = [
     'data/haarcascade_frontalface_alt_tree.xml',
     'data/haarcascade_frontalcatface.xml',
     'data/haarcascade_frontalcatface_extended.xml'
+    ],
+    [
+    'data/haarcascade_eye.xml',
+    'data/haarcascade_eye_tree_eyeglasses.xml'
+    ],
+    [
+    'data/haarcascade_lefteye_2splits.xml',
+    'data/haarcascade_righteye_2splits.xml'
+    ],
+    [
+    'data/haarcascade_smile.xml'
     ]
-faceCascades = [cv2.CascadeClassifier(path) for path in cascadePaths]
+    ]
+faceCascades = [[cv2.CascadeClassifier(path) for path in cascades] for cascades in cascadePaths]
 window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
 width = 1000
 height = 800
@@ -39,24 +52,26 @@ class FaceDetector:
                 transform = calculateSimilarityTransform(self.meanShape, predictedShape)
                 # print delta[:5]
         return predictedShape
-def detectFaceRectangle(image): # TODO test
+def detectFaceRectangle(image, ind=0): # TODO test
     width, height = np.shape(image)
     try:
         im = image
-        faces = faceCascade.detectMultiScale(
+        faces = faceCascades[ind][0].detectMultiScale(
                     image, # should be grayscale - gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                     scaleFactor=1.1,
                     minNeighbors=2,
-                    minSize=(width/4, height/4))
+                    # minSize=(width/4, height/4))
+                    minSize = (10,10))
         print faces
         index = 0
-        while len(faces) == 0:
+        while len(faces) == 0 and index+1 < len(faceCascades[ind]):
             index += 1
-            faces = faceCascades[index].detectMultiScale(
+            faces = faceCascades[ind][index].detectMultiScale(
                         image, # should be grayscale - gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                         scaleFactor=1.05,
                         minNeighbors=3,
-                        minSize=(width/3, height/3))
+                        # minSize=(width/3, height/3))
+                        minSize = (10,10))
             print faces
         # if len(faces) == 0:
         #     im = image.copy()
@@ -75,6 +90,8 @@ def detectFaceRectangle(image): # TODO test
         #             minNeighbors=3,
         #             minSize=(30, 30))
         #     print faces
+        if len(faces) == 0:
+            return (0,0,0,0), im
         index = np.argmax(faces[:,2]) # argmax of width # and height
         return faces[index], im # TODO or return largest one?
     except():
