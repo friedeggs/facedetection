@@ -33,7 +33,7 @@ class FaceDetector:
         transform = (1, np.identity(2), 0) # identity transform
         shapeRectangle, im = detectFaceRectangle(image)
         adjustment = adjustToFit(self.meanShape, shapeRectangle, adapterOnly=True)
-        predictedShape = self.meanShape
+        predictedShape = np.copy(self.meanShape)
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
                 # print "predicting"
@@ -68,6 +68,8 @@ def detectFaceRectangle(image, ind=0): # TODO test
         index = np.argmax(faces[:,2]) # argmax of width # and height
         faceRect = faces[index]
         faceRect = adjustRect(faceRect) # does not affect original shapeRectangle
+        # y,x,h,w = faceRect
+        # faceRect = (x,y,w,h)
         return faceRect, im # TODO or return largest one?
     except():
         e = sys.exc_info()[0]

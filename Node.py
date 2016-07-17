@@ -62,10 +62,10 @@ def split(image, node, meanShape, shapeEstimate, similarityTransform, adjustment
     # print image[u1[0]][u1[1]]
     # print image[v1[0]][v1[1]] # TODO were the same
     w, h = np.shape(image)
-    im_u = int(image[u1[0],u1[1]]) if u1[0] >= 0 and u1[0] < w and u1[1] >= 0 and u1[1] < h else 0 # TODO why was I switching them???????????
-    im_v = int(image[v1[0],v1[1]]) if v1[0] >= 0 and v1[0] < w and v1[1] >= 0 and v1[1] < h else 0
-    # im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
-    # im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
+    # im_u = int(image[u1[0],u1[1]]) if u1[0] >= 0 and u1[0] < w and u1[1] >= 0 and u1[1] < h else 0 
+    # im_v = int(image[v1[0],v1[1]]) if v1[0] >= 0 and v1[0] < w and v1[1] >= 0 and v1[1] < h else 0
+    im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
+    im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
     if im_u - im_v > tau:
     # if int(image[u1[1],u1[0]]) - int(image[v1[1],v1[0]]) > tau: # doesn't matter
     # if int(image[u1[0]][u1[1]]) - int(image[v1[0]][v1[1]]) > tau:

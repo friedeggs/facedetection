@@ -81,7 +81,7 @@ def generateTrainingData(): # [CHECKED]
 def updateShapes(t):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms
     for i in range(N):
-        shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i])
+        shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]])
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
 def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, debug=True):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
@@ -127,7 +127,7 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, deb
                 if saveIntermediates and (k+1) % 20 == 0:
                     save(strongRegressors[t], 'weak_regressors_' + str(t) + '-' + str(k+1))
                 if debug and (k+1) % 10 == 0:
-                    for j in range(10):
+                    for j in range(20):
                         # predictedShape = detectFace(strongRegressors, I[0])
                         predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[j])
                         image = markImage(I[j], predictedShape)
@@ -184,8 +184,8 @@ def testFaceDetector():
     for i in range(n):
         im = I[i].copy()
         rect, im2 = detectFaceRectangle(I[i]) # TODO not a problem
-        rect2 = adjustRect(rect)
-        x,y,w,h = rect2
+        # rect2 = adjustRect(rect)
+        x,y,w,h = rect
         # im = I[i] #.copy()
         thickness = 5
         cv2.line(im, (x,y), (x,y+h), thickness)
