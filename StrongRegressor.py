@@ -7,9 +7,9 @@ class StrongRegressor:
         self.weakRegressors = []
     def add(self, weakRegressor):
         self.weakRegressors.append(weakRegressor)
-    def eval(self, image, shapeEstimate, shapeTransform):
+    def eval(self, image, shapeEstimate, shapeTransform, adjustment):
         # res = applyInverseTransform(shapeTransform, self.baseFunction)
         res = np.copy(self.baseFunction)
         for weakRegressor in self.weakRegressors:
-            res += lr * weakRegressor.eval(image, shapeEstimate, shapeTransform) # TODO is it self.baseFunction? or is it shapeEstimate?
+            res += lr * weakRegressor.eval(image, shapeEstimate, shapeTransform, adjustment) # TODO is it self.baseFunction? or is it shapeEstimate?
         return res

@@ -44,3 +44,6 @@ def warpPoint(u, X, Y, similarityTransform): # TODO check
     delta_x_u = u - X[k_u]
     u1 = Y[k_u] + 1./S * np.dot(np.transpose(R), delta_x_u)
     return u1
+def adjustPoints(points, adjustment):
+    scale, offset = adjustment
+    return points * scale - offset

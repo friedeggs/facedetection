@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from Settings import *
-from MathFunctions import calculateSimilarityTransform
+from MathFunctions import calculateSimilarityTransform, adjustPoints
 cascadePath = 'data/lbpcascade_frontalface.xml'
 faceCascade = cv2.CascadeClassifier(cascadePath)
 cascadePaths = [
@@ -32,15 +32,16 @@ class FaceDetector:
     def detectFace(self, image):
         transform = (1, np.identity(2), 0) # identity transform
         shapeRectangle, im = detectFaceRectangle(image)
-        predictedShape = adjustToFit(self.meanShape, shapeRectangle)
+        adjustment = adjustToFit(self.meanShape, shapeRectangle, adapterOnly=True)
+        predictedShape = self.meanShape
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
                 # print "predicting"
-                delta = strongRegressor.eval(image, predictedShape, transform)
+                delta = strongRegressor.eval(image, predictedShape, transform, adjustment)
                 predictedShape += delta
                 transform = calculateSimilarityTransform(self.meanShape, predictedShape)
                 # print delta[:5]
-        return predictedShape
+        return adjustPoints(predictedShape, adjustment)
 def detectFaceRectangle(image, ind=0): # TODO test
     width, height = np.shape(image)
     try:
@@ -65,15 +66,16 @@ def detectFaceRectangle(image, ind=0): # TODO test
         if len(faces) == 0:
             return None
         index = np.argmax(faces[:,2]) # argmax of width # and height
-        return faces[index], im # TODO or return largest one?
+        faceRect = faces[index]
+        faceRect = adjustRect(faceRect) # does not affect original shapeRectangle
+        return faceRect, im # TODO or return largest one?
     except():
         e = sys.exc_info()[0]
         print(e)
         # cv2.imshow('Image', image)
         # cv2.waitKey()
         return FaceDetector.meanRectangle, im # TODO check if this is right in Python
-def adjustToFit(shape, shapeRectangle): # shapeRectangle is given as (x,y,w,h)
-    shapeRectangle = adjustRect(shapeRectangle) # does not affect original shapeRectangle
+def adjustToFit(shape, shapeRectangle, adapterOnly=False): # shapeRectangle is given as (x,y,w,h)
     x,y,w,h = shapeRectangle
     x = np.array([x,y])
     off = np.array([w,h])
@@ -82,6 +84,9 @@ def adjustToFit(shape, shapeRectangle): # shapeRectangle is given as (x,y,w,h)
     scale = 1.*off/(Y1 - X1)
     offset = X1 * scale - x
     shape = shape * scale - offset
+    transform = 1./scale
+    if adapterOnly:
+        return (scale, offset)
     return shape
 def adjustRect(rect): # TODO extremely arbitrary even if it depends on opencv's output
     x,y,w,h = rect

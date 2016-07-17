@@ -46,7 +46,7 @@ def calculateMeanShape(): # [CHECKED]
     # meanWidth, meanHeight = np.max(meanShape - np.min(meanShape, 0), 0).astype(int)
 def generateTrainingData(): # [CHECKED]
     # pi = np.random.permutation(np.repeat(np.arange(N), R)) # why does it even need to be random? order never matters
-    global shapeEstimates, shapeDeltas, shapes, pi
+    global shapeEstimates, shapeDeltas, shapes, pi, imageAdapters
     pi = np.repeat(np.arange(N), R)
     FaceDetector.meanRectangle = (
                 meanWidthX,
@@ -54,11 +54,14 @@ def generateTrainingData(): # [CHECKED]
                 meanWidthY - meanWidthX,
                 meanHeightY - meanHeightY)
     for i in range(n):
-        rectangles[i], im = detectFaceRectangle(I[i])
-        if rectangles[i] is None:
+        result = detectFaceRectangle(I[i])
+        if result is None:
             x,y = shapes[i].min(0)
             X,Y = shapes[i].max(0)
             rectangles[i] = (x,y,X-x,Y-y)
+        else:
+            rectangles[i], im = result
+        imageAdapters[i] = adjustToFit(meanShape, rectangles[i], adapterOnly=True) # TODO same code is run in here and shapeEstimates[i*R+j] line
     for i in range(n):
         sample = random.sample(range(n), R) # array of length 20 containing indices
         for j in range(R): # for efficiency don't call detectFaceRectangle R times
@@ -115,7 +118,7 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, deb
             for k in range(K):
                 for i in range(N):
                     ''' Evaluate on each image to calculate residuals '''
-                    residuals[i] = shapeDeltas[i] - strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i]) # strongRegressor[t] is the current collection of weak regressors g_1..g_k_1 that make up f_k_1
+                    residuals[i] = shapeDeltas[i] - strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]]) # strongRegressor[t] is the current collection of weak regressors g_1..g_k_1 that make up f_k_1
                 print "Fitting weak regression tree ", str(k+1)
                 tree = fitRegressionTree(I, pi, meanShape, residuals)
                 markTime()
@@ -137,7 +140,7 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, deb
             markTime()
             save(strongRegressors[t], tempPath + 'strong_regressor_' + str(t+1))
             if test:
-                for i in range(10):
+                for i in range(20):
                     # predictedShape = detectFace(strongRegressors, I[0])
                     predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[i])
                     image = markImage(I[i], predictedShape)

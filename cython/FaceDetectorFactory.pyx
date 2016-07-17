@@ -4,6 +4,7 @@
 import sys
 import cv2
 import numpy as np
+cimport numpy as np
 from FaceDetector import * # TODO change to follow best practices
 from StrongRegressor import StrongRegressor
 from WeakRegressor import *
@@ -12,21 +13,27 @@ from HelperFunctions import *
 from CommonFunctions import *
 from Settings import *
 random.seed()
-strongRegressors = [[] for i in range(T)]
-shapeDeltas = [[] for i in range(N)]
-pi = []
+ctypedef np.int_t DTYPE_t
+cdef np.ndarray[DTYPE_t, ndim=2] strongRegressors, shapeDeltas, I, residuals, rectangles
+cdef np.ndarray[DTYPE_t, ndim=1] pi
+strongRegressors = np.empty((T,1))
+shapeDeltas = np.empty((N,1))
+pi = np.empty((N,1))
 # shapes = [[] for i in range(n)]
-I = [[] for i in range(n)]
-residuals = [[] for i in range(N)]
-rectangles = [[] for i in range(n)]
+I = np.empty((n,1))
+residuals = np.empty((N,1))
+rectangles = np.empty((n,1))
 def calculateSimilarityTransforms():
+    cdef np.ndarray[DTYPE_t, ndim=2] similarityTransforms
+    cdef int i
     global similarityTransforms
     # similarityTransforms = [calculateSimilarityTransform(meanShape, shapeEstimates[i]) for i in range(N)]
     for i in range(N):
         similarityTransforms[i] = calculateSimilarityTransform(meanShape, shapeEstimates[i]) # IMPORTANT do not use list comprehension
-def groundEstimate(shapes):
+def groundEstimate(np.ndarray[DTYPE_t, ndim=2] shapes):
     return np.mean(shapes, axis=0)
 def loadData(): # [CHECKED]
+    cdef np.ndarray[DTYPE_t, ndim=2] shapes, I
     global shapes, I
     ''' Load images?!?!?! and shapes '''
     for i in range(n):
@@ -39,6 +46,8 @@ def loadData(): # [CHECKED]
 def calculateMeanShape(): # [CHECKED]
     ''' Calculate mean shape and bounding box shape of all faces '''
     # TODO placeholder implementation right now
+    cdef np.ndarray[DTYPE_t, ndim=2] meanShape
+    cdef int meanWidthX, meanHeightX, meanWidthY, meanHeightY
     global meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY
     meanShape = np.mean(shapes, 0)
     meanWidthX, meanHeightX = np.min(meanShape, 0).astype(int)
@@ -46,6 +55,8 @@ def calculateMeanShape(): # [CHECKED]
     # meanWidth, meanHeight = np.max(meanShape - np.min(meanShape, 0), 0).astype(int)
 def generateTrainingData(): # [CHECKED]
     # pi = np.random.permutation(np.repeat(np.arange(N), R)) # why does it even need to be random? order never matters
+    cdef np.ndarray[DTYPE_t, ndim=2] shapeEstimates, shapeDeltas, shapes
+    cdef np.ndarray[DTYPE_t, ndim=1] pi
     global shapeEstimates, shapeDeltas, shapes, pi
     pi = np.repeat(np.arange(N), R)
     FaceDetector.meanRectangle = (
@@ -81,6 +92,9 @@ def updateShapes(t):
         shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i])
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
 def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, debug=True):
+    cdef np.ndarray[DTYPE_t, ndim=2] shapeEstimates, shapeDeltas, strongRegressors, shapes, residuals, samplePairs, priorWeights
+    cdef np.ndarray[DTYPE_t, ndim=1] samplePoints, imilarityTransforms
+    cdef int i, j, k, t
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     try:
         print "Loading data"
@@ -152,6 +166,7 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, deb
         save(faceDetector, 'face_detector_4')
     return faceDetector
 def test():
+    cdef int i
     loadData()
     # calculateMeanShape()
     detector = load('face_detector_4')
@@ -166,6 +181,7 @@ def test():
         image = markImage(I[i], predictedShape)
         cv2.imwrite(resultsPath + testPath + str(i) + '.jpg', image)
 def testFaceDetector():
+    cdef int i
     loadData()
     calculateMeanShape()
     global shapeEstimates, shapeDeltas, shapes, pi
@@ -201,6 +217,7 @@ if __name__ == '__main__':
     # print strongRegressors[0].weakRegressors[0].node[:5]
     markTime()
 def displayPrediction(im, predictedShape, show=False, savePath=None):
+    cdef int a, b, i, width, height, k
     image = im.copy()
     width, height = np.shape(image)
     s = 5

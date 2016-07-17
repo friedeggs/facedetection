@@ -1,5 +1,6 @@
 # [CHECKED]
 import numpy as np
+cimport numpy as np
 from Settings import lr
 class StrongRegressor:
     def __init__(self, base):

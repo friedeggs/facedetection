@@ -2,6 +2,7 @@ import sys, time
 import cv2
 import dlib
 import numpy as np
+cimport numpy as np
 import random
 import math
 import pickle

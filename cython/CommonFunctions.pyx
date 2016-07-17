@@ -1,14 +1,34 @@
 import numpy as np
+cimport numpy as np
 import random
 from Settings import *
 from MathFunctions import prior
-def samplePixels(meanWidthX, meanHeightX, meanWidthY, meanHeightY):
+def samplePixels(int meanWidthX, int meanHeightX, int meanWidthY, int meanHeightY):
+    cdef np.ndarray[DTYPE_t, ndim=2] samplePairs, priorWeights, pairs
     global samplePairs, priorWeights
-    points = [(random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX, meanHeightY)) for i in range(P)]
-    pairs = [(points[i], points[j]) for i in range(len(points)) for j in range(len(points)) if i != j]
-    priorWeights = [prior(p[0], p[1]) for p in pairs]
-    total = sum(priorWeights)
-    priorWeights = [x / total for x in priorWeights]
+    cdef np.ndarray[DTYPE_t, ndim=2] points # TODO check dimension
+    cdef int i, j
+    points = np.empty((len(P),1)
+    pairs = np.zeros((len(P),len(P))
+    priorWeights = np.zeros((len(P),len(P))
+    for i in range(P):
+        points[i] = (random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX, meanHeightY))
+    cdef double total = 0
+    for i in range(P):
+        for j in range(P):
+            if i != j:
+                pairs[i][j] = (points[i], points[j])
+                if i < j:
+                    priorWeights[i][j] = prior(p[0], p[1])
+                    total += priorWeights[i][j]
+                else:
+                    priorWeights[i][j] = priorWeights[j][i]
+    # cdef double total = sum(priorWeights)
+    total *= 2
+    for i in range(P):
+        for j in range(P):
+            if i != j:
+                priorWeights[i][j] /= total
     samplePairs = pairs
     return points, pairs, priorWeights
 def samplePair():

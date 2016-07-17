@@ -1,5 +1,6 @@
 # [CHECKED]
 import numpy as np
+cimport numpy as np
 import random
 from Settings import *
 from MathFunctions import warpPoint
@@ -7,7 +8,7 @@ def __init__(self, tau, u, v):
     self.tau = tau
     self.u = u
     self.v = v
-def split_diff(image, node, meanShape, shapeEstimate, similarityTransform):
+def split_diff(np.ndarray image, node, np.ndarray meanShape, np.ndarray shapeEstimate, similarityTransform):
     tau, u, v = node
     u1 = warpPoint(u, meanShape, shapeEstimate, similarityTransform)
     v1 = warpPoint(v, meanShape, shapeEstimate, similarityTransform)
@@ -17,9 +18,10 @@ def split_diff(image, node, meanShape, shapeEstimate, similarityTransform):
     im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
     im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
     return im_u - im_v
-def splitPoints2(I, pi, meanShape, Q, theta): # [CHECKED]
+def splitPoints2(np.ndarray I, np.ndarray pi, np.ndarray meanShape, Q, theta): # [CHECKED]
+    cdef int i, cutoff
     tau, u, v = theta
-    thresholds = [split_diff(I[pi[i]], theta, meanShape, shapeEstimates[i], similarityTransforms[i]) for i in Q]
+    cdef np.ndarray thresholds = np.array([split_diff(I[pi[i]], theta, meanShape, shapeEstimates[i], similarityTransforms[i]) for i in Q])
     total = [x for (y,x) in sorted(zip(thresholds,Q))]
     cutoff = random.randint(1, len(Q)-1)
     left = total[cutoff:]

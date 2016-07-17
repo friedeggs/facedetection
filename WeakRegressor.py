@@ -11,15 +11,15 @@ class RegressionTree:
         self.leftTree = leftTree
         self.rightTree = rightTree
         self.meanShape = meanShape
-    def eval(self, image, shapeEstimate, shapeTransform): # warp based on shapeEstimate which is based off result from StrongRegressor
+    def eval(self, image, shapeEstimate, shapeTransform, adjustment): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.depth == 1: # leaf
             # print self.node[:1]
             return self.node # need to transform???? No, right? because these are the residuals, which we did not transform when computing
         # sys.stdout.write(str(split(image, self.node, self.meanShape, shapeEstimate, shapeTransform)))
-        if split(image, self.node, self.meanShape, shapeEstimate, shapeTransform) == 1:
-            return self.leftTree.eval(image, shapeEstimate, shapeTransform)
+        if split(image, self.node, self.meanShape, shapeEstimate, shapeTransform, adjustment) == 1:
+            return self.leftTree.eval(image, shapeEstimate, shapeTransform, adjustment)
         else:
-            return self.rightTree.eval(image, shapeEstimate, shapeTransform)
+            return self.rightTree.eval(image, shapeEstimate, shapeTransform, adjustment)
     def leaves(self):
         if self.depth == 1: # leaf
             return self.node[:5]
