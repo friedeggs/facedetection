@@ -45,10 +45,6 @@ def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
             mu_l = mu_l0
             mu_r = mu_r0
     tree = RegressionTree(split, meanShape, depth)
-    # if len(Q) == N:
-    #     print "------------------------------------------"
-    #     print Q_l
-    #     print Q_r
     if depth > 1:
         tree.leftTree = fitNode(I, pi, meanShape, Q_l, mu_l, depth - 1, residuals)
         tree.rightTree = fitNode(I, pi, meanShape, Q_r, mu_r, depth - 1, residuals)

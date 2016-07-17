@@ -43,6 +43,7 @@ def calculateMeanShape(): # [CHECKED]
     meanShape = np.mean(shapes, 0)
     meanWidthX, meanHeightX = np.min(meanShape, 0).astype(int)
     meanWidthY, meanHeightY = np.max(meanShape, 0).astype(int)
+    return meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY
     # meanWidth, meanHeight = np.max(meanShape - np.min(meanShape, 0), 0).astype(int)
 def generateTrainingData(): # [CHECKED]
     # pi = np.random.permutation(np.repeat(np.arange(N), R)) # why does it even need to be random? order never matters
@@ -63,15 +64,16 @@ def generateTrainingData(): # [CHECKED]
             rectangles[i], im = result
         imageAdapters[i] = adjustToFit(meanShape, rectangles[i], adapterOnly=True) # TODO same code is run in here and shapeEstimates[i*R+j] line
     for i in range(n):
-        sample = random.sample(range(n), R) # array of length 20 containing indices
+        sample = random.sample(range(i) + range(i+1, n), R) # array of length 20 containing indices
         for j in range(R): # for efficiency don't call detectFaceRectangle R times
             # x,y = shapes[i].min(0)
             # X,Y = shapes[i].max(0)
             # # shapeEstimates[i*R+j] = adjustToFit(shapes[i], detectFaceRectangle(I[i])) # TODO not a problem
-            # # shapeEstimates[i*R+j] = adjustToFit(shapes[sample[j]], (x,y,X-x,Y-y)) # good but not what it's supposed to be
+            shapeEstimates[i*R+j] = adjustToFit(shapes[sample[j]], rectangles[i])
+            # shapeEstimates[i*R+j] = adjustToFit(shapes[sample[j]], (x,y,X-x,Y-y))
             # shapeEstimates[i*R+j] = adjustToFit(meanShape, (x,y,X-x,Y-y))
-            shapeEstimates[i*R+j] = adjustToFit(meanShape, rectangles[i])
-            res = markImage(I[i].copy(), shapeEstimates[i*R+j])
+            # shapeEstimates[i*R+j] = np.copy(meanShape)# adjustToFit(meanShape, rectangles[i])
+            # res = markImage(I[i].copy(), shapeEstimates[i*R+j])
             # res = cv2.resize(res, (1000, 800))
             # cv2.imshow('Rectangle', res)
             # cv2.waitKey()
@@ -132,6 +134,12 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, deb
                         predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[j])
                         image = markImage(I[j], predictedShape)
                         width, height = np.shape(image)
+
+                        # im = markImage(I[j], shapeDeltas[i])
+                        # res = markImage(image, shapeEstimates[i*R+j])
+                        # res = cv2.resize(res, (1000, 800))
+                        # cv2.imshow('Rectangle', res)
+                        # cv2.waitKey()
                         cv2.imwrite(resultsPath + 'debug_' + str(t+1) + '_' + str(j) + '.jpg', image)
                         markTime()
                     raw_input()
@@ -200,40 +208,4 @@ if __name__ == '__main__':
     detector = learnFaceDetector(saveIntermediates=True)
     # testFaceDetector()
     # test()
-    # strongRegressors = load('temp_strong_regressor_saved_')
-    # print strongRegressors[0].weakRegressors[0].node[:5]
     markTime()
-def displayPrediction(im, predictedShape, show=False, savePath=None):
-    image = im.copy()
-    width, height = np.shape(image)
-    s = 5
-    for a,b in predictedShape:
-        a = int(a)
-        b = int(b)
-        for i in range(a-s, a+s):
-            for j in range(b-s,b+s):
-                if i < height and j < width and i >= 0 and j >= 0:
-                    image[j,i] = 255
-    for a,b in meanShape:
-        a = int(a)
-        b = int(b)
-        for i in range(a-s, a+s):
-            for j in range(b-s,b+s):
-                if i < height and j < width and i >= 0 and j >= 0:
-                    image[j,i] = 0
-    for k in range(1):
-        for i in range(N):
-            residuals[i] = shapeDeltas[i] - strongRegressors[0].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i])
-    mu = np.mean(residuals, 0)
-    for a,b in mu:
-        a = int(a)
-        b = int(b)
-        for i in range(a-s, a+s):
-            for j in range(b-s,b+s):
-                if i < height and j < width and i >= 0 and j >= 0:
-                    image[j,i] = 0
-    if show:
-        cv2.imshow('Prediction', image)
-        cv2.waitKey()
-    if savePath:
-        cv2.imwrite(savePath + '.jpg', image)

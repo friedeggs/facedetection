@@ -23,7 +23,7 @@ def markTime():
     thisTime = time.time()
     print "\t\t -- Total time elapsed: %9.2fs, Time since last: %9.2f" % ((thisTime - startTime), (thisTime - lastTime))
     lastTime = thisTime
-def markImage(im, predictedShape, markSize=5):
+def markImage(im, predictedShape, markSize=5, color=255):
     image = im.copy()
     width, height = np.shape(image)
     for a,b in predictedShape:
@@ -32,7 +32,7 @@ def markImage(im, predictedShape, markSize=5):
         for i in range(a-markSize, a+markSize):
             for j in range(b-markSize,b+markSize):
                 if i < height and j < width and i >= 0 and j >= 0:
-                    image[j,i] = 255
+                    image[j,i] = color
     return image
 def saveImage(image, path=resultsPath):
     cv2.imwrite(path + '_temp_' + str(x) + '.jpg', image) # TODO
