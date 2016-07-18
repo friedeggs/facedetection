@@ -1,13 +1,14 @@
 
 '''
 '''
+from profilestats import profile
 import sys
 import cv2
 import numpy as np
 from FaceDetector import * # TODO change to follow best practices
 from StrongRegressor import StrongRegressor
 from WeakRegressor import *
-from MathFunctions import calculateSimilarityTransform
+from MathFunctions import calculateSimilarityTransform, renormalize
 from HelperFunctions import *
 from CommonFunctions import *
 from Settings import *
@@ -85,6 +86,7 @@ def updateShapes(t):
     for i in range(N):
         shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]])
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
+@profile(print_stats=20, dump_stats=True)
 def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, debug=True):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     try:
@@ -120,7 +122,7 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, deb
             for k in range(K):
                 for i in range(N):
                     ''' Evaluate on each image to calculate residuals '''
-                    residuals[i] = shapeDeltas[i] - strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]]) # strongRegressor[t] is the current collection of weak regressors g_1..g_k_1 that make up f_k_1
+                    residuals[i] = renormalize(shapeDeltas[i] - strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]]), imageAdapters[pi[i]]) # strongRegressor[t] is the current collection of weak regressors g_1..g_k_1 that make up f_k_1
                 print "Fitting weak regression tree ", str(k+1)
                 tree = fitRegressionTree(I, pi, meanShape, residuals)
                 markTime()
@@ -164,18 +166,30 @@ def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, deb
     return faceDetector
 def test():
     loadData()
-    # calculateMeanShape()
-    detector = load('face_detector_4')
+    calculateMeanShape()
+    detector = load('weak_regressors_0-20')
+    strongRegressors[0] = detector
     # strongRegressors = load('temp_strong_regressor_saved')
-    # detector = FaceDetector(meanShape, strongRegressors)
+    detector = FaceDetector(meanShape, strongRegressors)
+    window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Rectangle', 1000, 800)
     for i in range(0,20):
         predictedShape = detector.detectFace(I[i])
         # print predictedShape[:2]
-        imageCenter = np.array(np.shape(I[i]))/2
-        shapeCenter = np.mean(predictedShape, 0)
-        predictedShape -= (shapeCenter - imageCenter)
-        image = markImage(I[i], predictedShape)
-        cv2.imwrite(resultsPath + testPath + str(i) + '.jpg', image)
+        # imageCenter = np.array(np.shape(I[i]))/2
+        # shapeCenter = np.mean(predictedShape, 0)
+        # predictedShape -= (shapeCenter - imageCenter)
+        index = random.randint(0,n-1)
+        startingShape = shapes[index]
+        rectangle, im = detectFaceRectangle(I[i])
+        startingShapeAdjusted = adjustToFit(startingShape, rectangle)
+        predictedShape = FaceDetector.detectFace(FaceDetector(startingShape, strongRegressors), I[i]) # used to be meanShape
+        image = markImage(I[i], startingShapeAdjusted, color=0)
+        image = markImage(image, predictedShape)
+        res = cv2.resize(image, (1000, 800))
+        cv2.imshow('Rectangle', res)
+        cv2.waitKey()
+        # cv2.imwrite(resultsPath + testPath + str(i) + '.jpg', image)
 def testFaceDetector():
     loadData()
     calculateMeanShape()
@@ -204,8 +218,38 @@ def testFaceDetector():
         res = cv2.resize(im,(width, height))
         cv2.imshow('Rectangle', res)
         cv2.waitKey()
+def showFaceDetector():
+    loadData()
+    calculateMeanShape()
+    strongRegressors[0] = load('weak_regressors_0-20')
+    window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Rectangle', 1000, 800)
+
+    rect, im = detectFaceRectangle(I[0])
+    im = im.copy()
+    shape = adjustToFit(meanShape, rect)
+    adjustment = adjustToFit(meanShape, rect, adapterOnly=True)
+    splits = []
+    for i in range(20):
+        splits += strongRegressors[0].weakRegressors[i].splits()
+    for split in splits:
+        threshold, p0, p1 = split
+        pair = np.array([p0,p1])
+        adjustedPair = adjustPoints(pair, adjustment)
+        adjustedPair = [[int(s) for s in p] for p in adjustedPair]
+        adjustedPair = tuple(map(tuple,adjustedPair))
+        # print pair, adjustPoints(pair,adjustment)
+        cv2.line(im, adjustedPair[0], adjustedPair[1], color=255, thickness=1)
+        im = markImage(im, adjustPoints(pair, adjustment), markSize=4)
+    im = markImage(im, shape)
+    im = cv2.resize(im,(width, height))
+    cv2.imshow('Rectangle', im)
+    cv2.waitKey()
 if __name__ == '__main__':
-    detector = learnFaceDetector(saveIntermediates=True)
+    # profilestats.run('learnFaceDetector(saveDetector=False)')
+    learnFaceDetector()
+    # detector = learnFaceDetector(saveIntermediates=True)
     # testFaceDetector()
     # test()
+    # showFaceDetector()
     markTime()

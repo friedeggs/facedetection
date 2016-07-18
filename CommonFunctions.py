@@ -6,16 +6,20 @@ import cv2
 from HelperFunctions import markImage
 from FaceDetector import detectFaceRectangle, adjustToFit
 def samplePixels(meanWidthX, meanHeightX, meanWidthY, meanHeightY):
-    global samplePairs, priorWeights
+    global samplePairs, priorWeights, presampledPairs, counter
     points = [(random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX, meanHeightY)) for i in range(P)]
     pairs = [(points[i], points[j]) for i in range(len(points)) for j in range(len(points)) if i != j]
     priorWeights = [prior(p[0], p[1]) for p in pairs]
     total = sum(priorWeights)
     priorWeights = [x / total for x in priorWeights]
     samplePairs = pairs
+    presampledPairs = np.random.choice(len(samplePairs), K*S*(2**F), p=priorWeights)
+    counter = 0
     return points, pairs, priorWeights
 def samplePair():
-    return samplePairs[np.random.choice(len(samplePairs), p=priorWeights)]
+    global counter
+    counter += 1
+    return samplePairs[presampledPairs[counter-1]]
 def generateCandidateSplit():
     pair = samplePair()
     threshold = random.randint(76, 178) # random.randint(0, 255) # TODO placeholder

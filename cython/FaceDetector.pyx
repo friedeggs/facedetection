@@ -3,6 +3,8 @@ cimport numpy as np
 import cv2
 from Settings import *
 from MathFunctions import calculateSimilarityTransform
+
+ctypedef np.int_t DTYPE_t
 cascadePath = 'data/lbpcascade_frontalface.xml'
 faceCascade = cv2.CascadeClassifier(cascadePath)
 cascadePaths = [
@@ -45,7 +47,7 @@ class FaceDetector:
                 # print delta[:5]
         return predictedShape
 def detectFaceRectangle(np.ndarray[DTYPE_t, ndim=2] image, int ind=0): # TODO test
-    cdef int width, height
+    cdef int width, height, index
     cdef np.ndarray[DTYPE_t, ndim=2] im
     width, height = np.shape(image)
     try:
@@ -57,7 +59,7 @@ def detectFaceRectangle(np.ndarray[DTYPE_t, ndim=2] image, int ind=0): # TODO te
                     minSize=(width/4, height/4))
                     # minSize = (10,10))
         print faces
-        cdef int index = 0
+        index = 0
         while len(faces) == 0 and index+1 < len(faceCascades):
             index += 1
             faces = faceCascades[index].detectMultiScale(

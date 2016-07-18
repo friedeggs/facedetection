@@ -1,6 +1,4 @@
 
-'''
-'''
 import sys
 import cv2
 import numpy as np
@@ -14,8 +12,9 @@ from CommonFunctions import *
 from Settings import *
 random.seed()
 ctypedef np.int_t DTYPE_t
-cdef np.ndarray[DTYPE_t, ndim=2] strongRegressors, shapeDeltas, I, residuals, rectangles
-cdef np.ndarray[DTYPE_t, ndim=1] pi
+cdef np.int_t[:] strongRegressors, shapeDeltas, I, residuals, rectangles
+cdef np.int_t[:] pi
+cdef int T = 1
 strongRegressors = np.empty((T,1))
 shapeDeltas = np.empty((N,1))
 pi = np.empty((N,1))
@@ -24,7 +23,6 @@ I = np.empty((n,1))
 residuals = np.empty((N,1))
 rectangles = np.empty((n,1))
 def calculateSimilarityTransforms():
-    cdef np.ndarray[DTYPE_t, ndim=2] similarityTransforms
     cdef int i
     global similarityTransforms
     # similarityTransforms = [calculateSimilarityTransform(meanShape, shapeEstimates[i]) for i in range(N)]
@@ -33,7 +31,8 @@ def calculateSimilarityTransforms():
 def groundEstimate(np.ndarray[DTYPE_t, ndim=2] shapes):
     return np.mean(shapes, axis=0)
 def loadData(): # [CHECKED]
-    cdef np.ndarray[DTYPE_t, ndim=2] shapes, I
+    # cdef np.ndarray[DTYPE_t, ndim=2] shapes, I
+    cdef int i
     global shapes, I
     ''' Load images?!?!?! and shapes '''
     for i in range(n):
@@ -46,8 +45,8 @@ def loadData(): # [CHECKED]
 def calculateMeanShape(): # [CHECKED]
     ''' Calculate mean shape and bounding box shape of all faces '''
     # TODO placeholder implementation right now
-    cdef np.ndarray[DTYPE_t, ndim=2] meanShape
-    cdef int meanWidthX, meanHeightX, meanWidthY, meanHeightY
+    # cdef np.ndarray[DTYPE_t, ndim=2] meanShape
+    # cdef int meanWidthX, meanHeightX, meanWidthY, meanHeightY
     global meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY
     meanShape = np.mean(shapes, 0)
     meanWidthX, meanHeightX = np.min(meanShape, 0).astype(int)
@@ -55,8 +54,9 @@ def calculateMeanShape(): # [CHECKED]
     # meanWidth, meanHeight = np.max(meanShape - np.min(meanShape, 0), 0).astype(int)
 def generateTrainingData(): # [CHECKED]
     # pi = np.random.permutation(np.repeat(np.arange(N), R)) # why does it even need to be random? order never matters
-    cdef np.ndarray[DTYPE_t, ndim=2] shapeEstimates, shapeDeltas, shapes
-    cdef np.ndarray[DTYPE_t, ndim=1] pi
+    # cdef np.ndarray[DTYPE_t, ndim=2] shapeEstimates, shapeDeltas, shapes
+    # cdef np.ndarray[DTYPE_t, ndim=1] pi
+    cdef int i
     global shapeEstimates, shapeDeltas, shapes, pi
     pi = np.repeat(np.arange(N), R)
     FaceDetector.meanRectangle = (
@@ -86,14 +86,15 @@ def generateTrainingData(): # [CHECKED]
     for i in range(N):
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
     return pi
-def updateShapes(t):
+def updateShapes(int t):
+    cdef int i
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms
     for i in range(N):
         shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i])
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
 def learnFaceDetector(saveDetector=True, test=True, saveIntermediates=False, debug=True):
-    cdef np.ndarray[DTYPE_t, ndim=2] shapeEstimates, shapeDeltas, strongRegressors, shapes, residuals, samplePairs, priorWeights
-    cdef np.ndarray[DTYPE_t, ndim=1] samplePoints, imilarityTransforms
+    # cdef np.ndarray[DTYPE_t, ndim=2] shapeEstimates, shapeDeltas, strongRegressors, shapes, residuals, samplePairs, priorWeights
+    # cdef np.ndarray[DTYPE_t, ndim=1] samplePoints, imilarityTransforms
     cdef int i, j, k, t
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     try:

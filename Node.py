@@ -1,4 +1,5 @@
 # [CHECKED]
+from profilestats import profile
 import numpy as np
 import random
 from Settings import *
@@ -35,9 +36,12 @@ def splitPoints(I, pi, meanShape, Q, theta):
     left, right = [], []
     for i in Q:
         left.append(i) if split(I[pi[i]], theta, meanShape, shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]]) == 1 else right.append(i)
-    return left, right
+    return left, right, theta
 def tryNodeSplit(I, pi, meanShape, Q, mu, theta, residuals):
     # maxval = 0
+    # i = random.randint(0, n-1)
+    # threshold = split_diff(I[pi[i]], theta, meanShape, shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]])
+    # tau, u, v = theta
     Q_l, Q_r, theta = splitPoints2(I, pi, meanShape, Q, theta)
     if len(Q_l) == 0:
         mu_theta_l = 0
@@ -62,7 +66,7 @@ def split(image, node, meanShape, shapeEstimate, similarityTransform, adjustment
     # print image[u1[0]][u1[1]]
     # print image[v1[0]][v1[1]] # TODO were the same
     w, h = np.shape(image)
-    # im_u = int(image[u1[0],u1[1]]) if u1[0] >= 0 and u1[0] < w and u1[1] >= 0 and u1[1] < h else 0 
+    # im_u = int(image[u1[0],u1[1]]) if u1[0] >= 0 and u1[0] < w and u1[1] >= 0 and u1[1] < h else 0
     # im_v = int(image[v1[0],v1[1]]) if v1[0] >= 0 and v1[0] < w and v1[1] >= 0 and v1[1] < h else 0
     im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
     im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0

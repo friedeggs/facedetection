@@ -24,6 +24,10 @@ class RegressionTree:
         if self.depth == 1: # leaf
             return self.node[:5]
         return self.leftTree.leaves() #, self.rightTree.leaves()
+    def splits(self):
+        if self.depth == 1: # leaf
+            return []
+        return [self.node] + self.leftTree.splits() + self.rightTree.splits()
 def fitRegressionTree(I, pi, meanShape, residuals):
     mu = np.mean(residuals, 0)
     tree = fitNode(I, pi, meanShape, range(N), mu, F, residuals)

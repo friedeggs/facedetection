@@ -2,6 +2,7 @@ import math
 import numpy as np
 cimport numpy as np
 from Settings import *
+ctypedef np.int_t DTYPE_t
 def prior(u,v):
     return math.exp(-lmbda*np.linalg.norm(np.subtract(u,v)))
 def calculateSimilarityTransform(np.ndarray[DTYPE_t, ndim=2] w, np.ndarray[DTYPE_t, ndim=2] v):

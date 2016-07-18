@@ -3,14 +3,15 @@ cimport numpy as np
 import random
 from Settings import *
 from MathFunctions import prior
+ctypedef np.int_t DTYPE_t
 def samplePixels(int meanWidthX, int meanHeightX, int meanWidthY, int meanHeightY):
     cdef np.ndarray[DTYPE_t, ndim=2] samplePairs, priorWeights, pairs
     global samplePairs, priorWeights
     cdef np.ndarray[DTYPE_t, ndim=2] points # TODO check dimension
     cdef int i, j
-    points = np.empty((len(P),1)
-    pairs = np.zeros((len(P),len(P))
-    priorWeights = np.zeros((len(P),len(P))
+    points = np.empty((len(P),1))
+    pairs = np.zeros((len(P),len(P)))
+    priorWeights = np.zeros((len(P),len(P)))
     for i in range(P):
         points[i] = (random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX, meanHeightY))
     cdef double total = 0

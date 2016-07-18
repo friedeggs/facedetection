@@ -5,6 +5,7 @@ import sys
 from Settings import *
 from CommonFunctions import generateCandidateSplit
 from Node import tryNodeSplit, split
+ctypedef np.int_t DTYPE_t
 class RegressionTree:
     def __init__(self, node, np.ndarray[DTYPE_t, ndim=2] meanShape=None, depth=1, leftTree=None, rightTree=None):
         self.node = node
@@ -36,7 +37,7 @@ def fitNode(np.ndarray[DTYPE_t, ndim=2] I, np.ndarray[DTYPE_t, ndim=2] pi, np.nd
     cdef np.ndarray[DTYPE_t, ndim=2] mu_l, mu_r, mu_l0, mu_r0
     cdef double maxval, val
     maxval = 0
-    int i
+    cdef int i
     for i in range(S):
         candidateSplit = generateCandidateSplit()
         # print "candidate split: ", candidateSplit

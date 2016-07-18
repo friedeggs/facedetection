@@ -1,7 +1,8 @@
 # [CHECKED]
 import numpy as np
 cimport numpy as np
-from Settings import lr
+# from Settings import lr
+lr = 0.025
 class StrongRegressor:
     def __init__(self, base):
         self.baseFunction = np.copy(base)

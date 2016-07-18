@@ -4,6 +4,7 @@ cimport numpy as np
 import random
 from Settings import *
 from MathFunctions import warpPoint
+ctypedef np.int_t DTYPE_t
 def __init__(self, tau, u, v):
     self.tau = tau
     self.u = u
