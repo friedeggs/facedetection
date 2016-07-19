@@ -7,14 +7,15 @@ from HelperFunctions import markImage
 from FaceDetector import detectFaceRectangle, adjustToFit
 def samplePixels(meanWidthX, meanHeightX, meanWidthY, meanHeightY):
     global samplePairs, priorWeights, presampledPairs, counter
-    points = [(random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX, meanHeightY)) for i in range(P)]
+    height = meanHeightY-meanHeightX
+    points = [(random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX-height/3, meanHeightY+height/7)) for i in range(P)] # TODO confirm this adjustment
     pairs = [(points[i], points[j]) for i in range(len(points)) for j in range(len(points)) if i != j]
     priorWeights = [prior(p[0], p[1]) for p in pairs]
     total = sum(priorWeights)
     priorWeights = [x / total for x in priorWeights]
     samplePairs = pairs
-    # presampledPairs = np.random.choice(len(samplePairs), K*S*(2**F), p=priorWeights)
-    presampledPairs = np.random.choice(len(samplePairs), 20*20*10, p=priorWeights)
+    presampledPairs = np.random.choice(len(samplePairs), K*S*(2**F), p=priorWeights)
+    # presampledPairs = np.random.choice(len(samplePairs), 20*20*10, p=priorWeights)
     counter = 0
     return points, pairs, priorWeights
 def samplePair():

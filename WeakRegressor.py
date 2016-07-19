@@ -9,13 +9,13 @@ import pytest
 import nose
 from HelperFunctions import save
 class RegressionTree:
-    def __init__(self, node, meanShape=None, depth=1, leftTree=None, rightTree=None, residual=None):
+    def __init__(self, node, meanShape=None, depth=1, leftTree=None, rightTree=None, residuals=None):
         self.node = node
         self.depth = depth
         self.leftTree = leftTree
         self.rightTree = rightTree
         self.meanShape = meanShape
-        self.residual = residual
+        self.residuals = residuals
     def eval(self, image, shapeEstimate, shapeTransform, adjustment): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.depth == 1: # leaf
             return self.node
@@ -27,7 +27,7 @@ class RegressionTree:
     def special_eval(self, image, shapeEstimate, shapeTransform, adjustment): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.depth == 1: # leaf
             # print "residual ------- ", self.residual
-            return self.node, self.residual
+            return self.node, self.residuals
         # sys.stdout.write(str(split(image, self.node, self.meanShape, shapeEstimate, shapeTransform)))
         if split(image, self.node, self.meanShape, shapeEstimate, shapeTransform, adjustment) == 1:
             return self.leftTree.special_eval(image, shapeEstimate, shapeTransform, adjustment)
@@ -47,9 +47,9 @@ def fitRegressionTree(I, pi, meanShape, residuals):
     return tree
 def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
     if depth == 1 or len(Q) == 1: # TODO check if should be 0 instead
-        nose.tools.assert_equal(len(Q), 1)
-        np.testing.assert_almost_equal(residuals[Q[0]], mu)
-        return RegressionTree(mu, residual=Q[0]) # Leaf node
+        # nose.tools.assert_equal(len(Q), 1)
+        # np.testing.assert_almost_equal(residuals[Q[0]], mu)
+        return RegressionTree(mu, residuals=Q) # Leaf node
     maxval = 0
     for i in range(S):
         candidateSplit = generateCandidateSplit()

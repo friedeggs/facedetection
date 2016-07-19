@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from Settings import *
-from MathFunctions import calculateSimilarityTransform, adjustPoints
+from MathFunctions import calculateSimilarityTransform, adjustPoints, normalize
 cascadePath = 'data/lbpcascade_frontalface.xml'
 faceCascade = cv2.CascadeClassifier(cascadePath)
 cascadePaths = [
@@ -33,15 +33,15 @@ class FaceDetector:
         transform = (1, np.identity(2), 0) # identity transform
         shapeRectangle, im = detectFaceRectangle(image)
         adjustment = adjustToFit(self.meanShape, shapeRectangle, adapterOnly=True)
-        predictedShape = np.copy(self.meanShape)
+        predictedShape = adjustToFit(self.meanShape, shapeRectangle)
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
                 # print "predicting"
                 delta = strongRegressor.eval(image, predictedShape, transform, adjustment)
-                predictedShape += delta
+                predictedShape += normalize(delta, adjustment)
                 transform = calculateSimilarityTransform(self.meanShape, predictedShape)
                 # print delta[:5]
-        return adjustPoints(predictedShape, adjustment)
+        return predictedShape # adjustPoints(predictedShape, adjustment)
 def detectFaceRectangle(image, ind=0): # TODO test
     width, height = np.shape(image)
     try:

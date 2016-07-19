@@ -46,7 +46,7 @@ def warpPoint(u, X, Y, similarityTransform): # TODO check
     return u1
 def adjustPoints(points, adjustment):
     scale, offset = adjustment
-    return points * scale - offset
+    return points * scale - offset # TODO should this be offset?
 def renormalize(points, adjustment):
     scale, offset = adjustment
     return points / scale
