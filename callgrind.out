@@ -1,14 +1,10 @@
 events: Ticks
-summary: 2927
+summary: 2421
 fn=<time.time>
 0 0
 
 fn=<method 'argmax' of 'numpy.ndarray' objects>
 0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-fn=__call__
-652 0
 
 fn=<method 'random' of '_random.Random' objects>
 0 0
@@ -20,12 +16,12 @@ fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/nu
 fn=_formatArray
 465 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-cfn=__call__
-calls=40 652
-465 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 cfn=_formatArray
 calls=10 465
+465 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+cfn=__call__
+calls=40 652
 465 0
 cfn=<method 'rstrip' of 'str' objects>
 calls=20 0
@@ -40,36 +36,6 @@ cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/n
 cfn=_extendLine
 calls=40 457
 465 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-fn=allclose
-2056 0
-cfn=<abs>
-calls=2 0
-2056 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=__enter__
-calls=1 2705
-2056 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=__init__
-calls=1 2701
-2056 0
-cfn=<numpy.core.multiarray.array>
-calls=2 0
-2056 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=all
-calls=1 1842
-2056 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=__exit__
-calls=1 2710
-2056 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=any
-calls=2 1762
-2056 0
 
 fn=<method 'split' of 'str' objects>
 0 0
@@ -105,28 +71,25 @@ fn=mean
 2632 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
 cfn=_mean
-calls=3 49
-2632 5
+calls=1 49
+2632 1
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
 fn=memoize
 227 0
 cfn=<id>
-calls=42 0
+calls=4 0
 227 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
 cfn=put
-calls=21 250
+calls=2 250
 227 0
 cfn=<len>
-calls=21 0
+calls=2 0
 227 0
 cfn=<method 'write' of 'file' objects>
-calls=21 0
+calls=2 0
 227 0
-
-fn=<method 'get' of 'dict' objects>
-0 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 fn=array_str
@@ -134,67 +97,7 @@ fn=array_str
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 cfn=array2string
 calls=30 343
-1581 7
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-fn=_all
-35 0
-cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=1 0
-35 0
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/FaceDetector.py
-fn=adjustToFit
-80 1
-cfn=<method 'astype' of 'numpy.ndarray' objects>
-calls=30 0
-80 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=amin
-calls=30 2132
-80 0
-cfn=<numpy.core.multiarray.array>
-calls=60 0
-80 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=amax
-calls=30 2048
-80 0
-
-fn=<method '__array_prepare__' of 'numpy.ndarray' objects>
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-fn=_amax
-15 0
-cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=31 0
-15 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=_assertNoEmpty2d
-219 0
-
-fn=<method 'astype' of 'numpy.generic' objects>
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=_assertRankAtLeast2
-198 0
-cfn=<len>
-calls=40 0
-198 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=_batch_setitems
-655 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save
-calls=4 269
-655 0
-cfn=<method 'write' of 'file' objects>
-calls=2 0
-655 0
+1581 6
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 fn=fillFormat
@@ -206,15 +109,15 @@ cfn=<method 'compress' of 'numpy.ndarray' objects>
 calls=30 0
 547 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
+cfn=__init__
+calls=30 2701
+547 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 cfn=__enter__
 calls=30 2705
 547 0
 cfn=<max>
 calls=20 0
-547 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=__init__
-calls=30 2701
 547 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 cfn=_digits
@@ -236,7 +139,7 @@ calls=90 0
 547 0
 
 fn=<method 'reduce' of 'numpy.ufunc' objects>
-0 509
+0 419
 
 fl=FaceDetectorFactory.py
 fn=calculateMeanShape
@@ -268,7 +171,7 @@ calls=1940 0
 30 0
 cfn=<imread>
 calls=10 0
-30 54
+30 55
 cfn=<method 'readline' of 'file' objects>
 calls=10 0
 30 0
@@ -297,241 +200,100 @@ fn=__init__
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 cfn=fillFormat
 calls=30 547
-533 4
+533 3
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_int
-437 0
-cfn=<method 'write' of 'file' objects>
-calls=10 0
-437 0
-cfn=<repr>
-calls=10 0
-437 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
+fn=_count_reduce_items
+39 0
+cfn=<isinstance>
+calls=1 0
+39 0
 
 fn=<method 'detectMultiScale' of 'cv2.CascadeClassifier' objects>
-0 66
+0 68
 
-fn=<abs>
-0 0
-
-fn=<method 'iteritems' of 'dict' objects>
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_global
-730 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=memoize
-calls=3 227
-730 0
-cfn=<getattr>
-calls=6 0
-730 0
-cfn=<method 'write' of 'file' objects>
-calls=3 0
-730 0
-cfn=<__import__>
-calls=3 0
-730 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
-fn=assertNotEqual
-517 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
-cfn=_formatMessage
-calls=1 426
-517 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/util.py
-cfn=safe_repr
-calls=2 8
-517 1
-
-fl=FaceDetectorFactory.py
-fn=groundEstimate
-28 0
+fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/FaceDetector.py
+fn=adjustToFit
+80 1
+cfn=<method 'astype' of 'numpy.ndarray' objects>
+calls=30 0
+80 0
+cfn=<numpy.core.multiarray.array>
+calls=60 0
+80 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=mean
-calls=2 2632
-28 4
+cfn=amin
+calls=30 2132
+80 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
+cfn=amax
+calls=30 2048
+80 0
 
 fn=<id>
 0 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=_makearray
-106 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asarray
-calls=20 392
-106 0
-cfn=<getattr>
-calls=20 0
-106 0
-
-fn=<method 'tolist' of 'numpy.ndarray' objects>
-0 1
-
-fn=<numpy.core._dotblas.dot>
-0 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+fn=__call__
+652 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
 fn=put
 250 0
 cfn=<repr>
-calls=21 0
+calls=2 0
 250 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 fn=seterr
 2320 0
 cfn=<numpy.core.umath.geterrobj>
-calls=62 0
+calls=60 0
 2320 0
 cfn=<numpy.core.umath.seterrobj>
-calls=62 0
+calls=60 0
 2320 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 cfn=geterr
-calls=62 2416
+calls=60 2416
 2320 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
 fn=_mean
 49 0
 cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=3 0
+calls=1 0
+49 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
+cfn=_count_reduce_items
+calls=1 39
 49 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 cfn=asanyarray
-calls=3 462
-49 5
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_count_reduce_items
-calls=3 39
-49 0
+calls=1 462
+49 1
 cfn=<isinstance>
-calls=3 0
+calls=1 0
 49 0
 cfn=<issubclass>
-calls=3 0
+calls=1 0
 49 0
 
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/MathFunctions.py
-fn=renormalize
-50 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
+fn=__init__
+2701 0
+cfn=<method 'pop' of 'dict' objects>
+calls=30 0
+2701 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-fn=_prod
-27 0
-cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=1 0
-27 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=amin
-2132 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_amin
-calls=31 19
-2132 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_list
-591 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=memoize
-calls=2 227
-591 0
-cfn=<iter>
-calls=2 0
-591 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=_batch_appends
-calls=2 608
-591 0
-cfn=<method 'write' of 'file' objects>
-calls=2 0
-591 0
-
-fn=<numpy.core.multiarray.zeros>
+fn=<method 'close' of 'file' objects>
 0 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_reduce
-345 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=memoize
-calls=2 227
-345 0
-cfn=<hasattr>
-calls=2 0
-345 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save
-calls=6 269
-345 0
-cfn=<isinstance>
-calls=2 0
-345 0
-cfn=<method 'write' of 'file' objects>
-calls=4 0
-345 0
-
 fn=<imread>
-0 54
+0 55
 
 fn=<method 'readline' of 'file' objects>
 0 0
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/MathFunctions.py
-fn=calculateSimilarityTransform
-6 1
-cfn=<numpy.core._dotblas.dot>
-calls=100 0
-6 0
-cfn=<numpy.core.multiarray.zeros>
-calls=40 0
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/twodim_base.py
-cfn=diag
-calls=20 221
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=identity
-calls=20 2025
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=shape
-calls=40 1452
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=trace
-calls=20 1223
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=det
-calls=20 1673
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=sum
-calls=80 1621
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=transpose
-calls=80 492
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=norm
-calls=40 1918
-6 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=svd
-calls=20 1219
-6 0
-cfn=<len>
-calls=100 0
-6 0
 
 fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/FaceDetector.py
 fn=detectFaceRectangle
@@ -539,10 +301,10 @@ fn=detectFaceRectangle
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 cfn=array_str
 calls=10 1581
-45 7
+45 6
 cfn=<method 'detectMultiScale' of 'cv2.CascadeClassifier' objects>
 calls=12 0
-45 66
+45 68
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
 cfn=argmax
 calls=10 878
@@ -559,64 +321,16 @@ cfn=<len>
 calls=24 0
 45 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
-fn=_formatMessage
-426 0
-
-fn=<method '__reduce_ex__' of 'object' objects>
-0 0
-
-fn=<method 'any' of 'numpy.ndarray' objects>
-0 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_any
-calls=33 31
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/twodim_base.py
-fn=diag
-221 0
-cfn=<abs>
-calls=20 0
-221 0
-cfn=<numpy.core.multiarray.zeros>
-calls=20 0
-221 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asarray
-calls=20 392
-221 0
-cfn=<len>
-calls=20 0
-221 0
-
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 fn=__enter__
 2705 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 cfn=seterr
-calls=31 2320
+calls=30 2320
 2705 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=_realType
-124 0
-cfn=<method 'get' of 'dict' objects>
-calls=60 0
-124 0
 
 fn=<method 'item' of 'numpy.ndarray' objects>
 0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=_assertNdSquareness
-209 0
-cfn=<max>
-calls=20 0
-209 0
-cfn=<min>
-calls=20 0
-209 0
 
 fn=<max>
 0 0
@@ -628,25 +342,7 @@ cfn=<method 'reduce' of 'numpy.ufunc' objects>
 calls=31 0
 19 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_none
-426 0
-cfn=<method 'write' of 'file' objects>
-calls=3 0
-426 0
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/StrongRegressor.py
-fn=eval
-10 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/function_base.py
-cfn=copy
-calls=1 786
-10 0
-
 fn=<iter>
-0 0
-
-fn=<method 'trace' of 'numpy.ndarray' objects>
 0 0
 
 fn=<method 'readlines' of 'file' objects>
@@ -666,24 +362,23 @@ cfn=product
 calls=10 32
 0 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=prod
-2249 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_prod
-calls=1 27
-2249 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-fn=identity
-2025 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/twodim_base.py
-cfn=eye
-calls=20 170
-2025 0
-
-fn=<method 'repeat' of 'numpy.ndarray' objects>
-0 0
+fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/CommonFunctions.py
+fn=samplePixels
+8 112
+cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/MathFunctions.py
+cfn=prior
+calls=134250 4
+8 2162
+cfn=<len>
+calls=401 0
+8 0
+cfn=<range>
+calls=402 0
+8 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
+cfn=randint
+calls=800 238
+8 3
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
 fn=dump
@@ -703,55 +398,12 @@ cfn=<method 'random' of '_random.Random' objects>
 calls=800 0
 175 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-fn=__init__
-2701 0
-cfn=<method 'pop' of 'dict' objects>
-calls=31 0
-2701 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_tuple
-532 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=memoize
-calls=6 227
-532 0
-cfn=<id>
-calls=6 0
-532 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save
-calls=22 269
-532 0
-cfn=<len>
-calls=6 0
-532 0
-cfn=<method 'write' of 'file' objects>
-calls=12 0
-532 0
+fn=<method 'get' of 'dict' objects>
+0 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
 fn=shape
 1452 0
-
-fn=<math.exp>
-0 24
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/StrongRegressor.py
-fn=__init__
-5 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/function_base.py
-cfn=copy
-calls=1 786
-5 0
-
-fn=<method 'all' of 'numpy.ndarray' objects>
-0 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_all
-calls=1 35
-0 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 fn=__init__
@@ -804,18 +456,18 @@ calls=1 173
 1369 0
 
 fn=<numpy.core.multiarray.array>
-0 95
+0 79
 
 fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/MathFunctions.py
 fn=prior
-4 1137
-cfn=<math.exp>
-calls=159600 0
-4 24
+4 926
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
 cfn=norm
-calls=159600 1918
-4 1458
+calls=134250 1918
+4 1217
+cfn=<math.exp>
+calls=134249 0
+4 19
 
 fn=<min>
 0 0
@@ -830,482 +482,30 @@ cfn=<len>
 calls=10 0
 293 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=trace
-1223 0
-cfn=<method 'trace' of 'numpy.ndarray' objects>
-calls=20 0
-1223 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asarray
-calls=20 392
-1223 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_inst
-690 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=memoize
-calls=1 227
-690 0
-cfn=<hasattr>
-calls=1 0
-690 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save
-calls=1 269
-690 0
-cfn=<method 'write' of 'file' objects>
-calls=3 0
-690 0
-
-fl=FaceDetectorFactory.py
-fn=calculateSimilarityTransforms
-24 0
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/MathFunctions.py
-cfn=calculateSimilarityTransform
-calls=20 6
-24 5
-cfn=<range>
-calls=1 0
-24 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=det
-1673 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_assertNoEmpty2d
-calls=20 219
-1673 0
-cfn=<method 'astype' of 'numpy.generic' objects>
-calls=20 0
-1673 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_assertRankAtLeast2
-calls=20 198
-1673 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_assertNdSquareness
-calls=20 209
-1673 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asarray
-calls=20 392
-1673 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_commonType
-calls=20 139
-1673 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=isComplexType
-calls=20 111
-1673 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=sum
-1621 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_sum
-calls=80 23
-1621 0
-cfn=<isinstance>
-calls=80 0
-1621 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+fn=__init__
+716 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 fn=asanyarray
 462 0
 cfn=<numpy.core.multiarray.array>
-calls=37 0
-462 5
+calls=31 0
+462 1
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
 fn=asarray
-392 72
+392 64
 cfn=<numpy.core.multiarray.array>
-calls=159730 0
-392 89
-
-fn=<hasattr>
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=transpose
-492 0
-cfn=<method 'transpose' of 'numpy.ndarray' objects>
-calls=80 0
-492 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-fn=__init__
-716 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/util.py
-fn=safe_repr
-8 0
-cfn=<repr>
-calls=2 0
-8 1
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=_commonType
-139 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_realType
-calls=40 124
-139 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=isComplexType
-calls=40 111
-139 0
-cfn=<issubclass>
-calls=40 0
-139 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-fn=array2string
-343 0
-cfn=<method 'item' of 'numpy.ndarray' objects>
-calls=20 0
-343 0
-cfn=<_functools.reduce>
-calls=10 0
-343 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-cfn=_array2string
-calls=10 233
-343 6
-cfn=<isinstance>
-calls=20 0
-343 0
+calls=134260 0
+392 77
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-fn=_sum
-23 0
+fn=_any
+31 0
 cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=81 0
-23 0
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/CommonFunctions.py
-fn=samplePixels
-8 131
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/MathFunctions.py
-cfn=prior
-calls=159600 4
-8 2620
-cfn=<method 'choice' of 'mtrand.RandomState' objects>
-calls=1 0
-8 14
-cfn=<sum>
-calls=1 0
-8 1
-cfn=<len>
-calls=402 0
-8 0
-cfn=<range>
-calls=402 0
-8 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
-cfn=randint
-calls=800 238
-8 3
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
-fn=save
-18 0
-cfn=<open>
-calls=1 0
-18 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=dump
-calls=1 1369
-18 0
-cfn=<method 'close' of 'file' objects>
-calls=1 0
-18 0
-
-fl=FaceDetectorFactory.py
-fn=test_learnFaceDetector
-104 0
-cfl=FaceDetectorFactory.py
-cfn=generateTrainingData
-calls=1 59
-104 78
-cfl=FaceDetectorFactory.py
-cfn=calculateMeanShape
-calls=1 50
-104 1
-cfl=FaceDetectorFactory.py
-cfn=loadData
-calls=1 30
-104 60
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
-cfn=assertNotEqual
-calls=1 517
-104 1
-cfl=FaceDetectorFactory.py
-cfn=groundEstimate
-calls=2 28
-104 4
-cfn=<method 'tolist' of 'numpy.ndarray' objects>
-calls=2 0
-104 1
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/MathFunctions.py
-cfn=renormalize
-calls=2 50
-104 0
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/StrongRegressor.py
-cfn=eval
-calls=1 10
-104 0
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/StrongRegressor.py
-cfn=__init__
-calls=1 5
-104 0
-cfl=FaceDetectorFactory.py
-cfn=calculateSimilarityTransforms
-calls=1 24
-104 5
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/CommonFunctions.py
-cfn=samplePixels
-calls=1 8
-104 2773
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
-cfn=save
-calls=1 18
-104 1
-cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
-cfn=markTime
-calls=6 22
-104 0
-cfn=<range>
-calls=4 0
-104 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=ravel
-1281 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asarray
-calls=10 392
-1281 0
-cfn=<method 'ravel' of 'numpy.ndarray' objects>
-calls=10 0
-1281 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-fn=product
-32 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=norm
-1918 755
-cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=159640 0
-1918 507
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asarray
-calls=159640 392
-1918 161
-cfn=<len>
-calls=40 0
-1918 0
-cfn=<isinstance>
-calls=40 0
-1918 0
-cfn=<method 'conj' of 'numpy.ndarray' objects>
-calls=159640 0
-1918 34
-
-fn=<numpy.core.umath.geterrobj>
-0 0
-
-fn=<method 'transpose' of 'numpy.ndarray' objects>
-0 0
-
-fn=<method 'choice' of 'mtrand.RandomState' objects>
-0 14
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=allclose
-calls=1 2056
-0 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=prod
-calls=1 2249
-0 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_sum
-calls=1 23
-0 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-cfn=any
-calls=1 1762
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_bool
-430 0
-cfn=<method 'write' of 'file' objects>
-calls=1 0
-430 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save
-269 0
-cfn=<method 'get' of 'dict' objects>
-calls=72 0
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_int
-calls=10 437
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_global
-calls=3 730
-269 0
-cfn=<id>
-calls=35 0
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_list
-calls=2 591
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_reduce
-calls=2 345
-269 0
-cfn=<method '__reduce_ex__' of 'object' objects>
-calls=2 0
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_none
-calls=3 426
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_tuple
-calls=6 532
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_inst
-calls=1 690
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_bool
-calls=1 430
-269 0
-cfn=<getattr>
-calls=2 0
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_dict
-calls=1 640
-269 0
-cfn=<len>
-calls=2 0
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=persistent_id
-calls=35 333
-269 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=save_string
-calls=6 480
-269 0
-cfn=<issubclass>
-calls=2 0
-269 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=get_linalg_error_extobj
-101 0
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/FaceDetector.py
-fn=adjustRect
-93 0
-
-fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
-fn=markTime
-22 0
-cfn=<time.time>
-calls=6 0
-22 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=amax
-2048 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-cfn=_amax
-calls=31 15
-2048 0
-
-fn=<numpy.core.umath.seterrobj>
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=all
-1842 0
-cfn=<method 'all' of 'numpy.ndarray' objects>
-calls=1 0
-1842 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asanyarray
-calls=1 462
-1842 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-fn=__init__
-689 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-cfn=__init__
-calls=20 661
-689 0
-
-fn=<getattr>
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_dict
-640 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=memoize
-calls=1 227
-640 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=_batch_setitems
-calls=1 655
-640 0
-cfn=<method 'iteritems' of 'dict' objects>
-calls=1 0
-640 0
-cfn=<method 'write' of 'file' objects>
-calls=1 0
-640 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-fn=__exit__
-2710 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=seterr
-calls=31 2320
-2710 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=any
-1762 0
-cfn=<method 'any' of 'numpy.ndarray' objects>
-calls=33 0
-1762 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
-cfn=asanyarray
-calls=33 462
-1762 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
-fn=repeat
-347 0
-cfn=<method 'repeat' of 'numpy.ndarray' objects>
-calls=1 0
-347 0
+calls=30 0
+31 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 fn=_array2string
@@ -1313,7 +513,7 @@ fn=_array2string
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 cfn=_formatArray
 calls=10 465
-233 1
+233 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 cfn=__init__
 calls=10 533
@@ -1334,6 +534,10 @@ cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/n
 cfn=__init__
 calls=10 689
 233 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+cfn=__init__
+calls=10 700
+233 2
 cfn=<len>
 calls=20 0
 233 0
@@ -1346,77 +550,219 @@ calls=30 0
 233 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 cfn=__init__
-calls=10 700
-233 2
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-cfn=__init__
 calls=10 744
 233 0
 
-fn=<sum>
-0 1
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+fn=array2string
+343 0
+cfn=<method 'item' of 'numpy.ndarray' objects>
+calls=20 0
+343 0
+cfn=<_functools.reduce>
+calls=10 0
+343 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+cfn=_array2string
+calls=10 233
+343 6
+cfn=<isinstance>
+calls=20 0
+343 0
+
+fn=<method 'repeat' of 'numpy.ndarray' objects>
+0 0
+
+fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
+fn=save
+18 0
+cfn=<open>
+calls=1 0
+18 0
+cfn=<method 'close' of 'file' objects>
+calls=1 0
+18 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
+cfn=dump
+calls=1 1369
+18 0
+
+fl=FaceDetectorFactory.py
+fn=test_learnFaceDetector
+104 0
+cfl=FaceDetectorFactory.py
+cfn=generateTrainingData
+calls=1 59
+104 78
+cfl=FaceDetectorFactory.py
+cfn=calculateMeanShape
+calls=1 50
+104 1
+cfl=FaceDetectorFactory.py
+cfn=loadData
+calls=1 30
+104 61
+cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/CommonFunctions.py
+cfn=samplePixels
+calls=1 8
+104 2279
+cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
+cfn=save
+calls=1 18
+104 0
+cfl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
+cfn=markTime
+calls=4 22
+104 0
+cfn=<range>
+calls=1 0
+104 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
+fn=ravel
+1281 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
+cfn=asarray
+calls=10 392
+1281 0
+cfn=<method 'ravel' of 'numpy.ndarray' objects>
+calls=10 0
+1281 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+fn=product
+32 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=svd
-1219 0
-cfn=<method '__array_prepare__' of 'numpy.ndarray' objects>
-calls=40 0
-1219 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_assertNoEmpty2d
-calls=20 219
-1219 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_assertRankAtLeast2
-calls=20 198
-1219 0
-cfn=<method 'astype' of 'numpy.ndarray' objects>
-calls=60 0
-1219 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_makearray
-calls=20 106
-1219 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_realType
-calls=20 124
-1219 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=_commonType
-calls=20 139
-1219 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=get_linalg_error_extobj
-calls=20 101
-1219 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-cfn=isComplexType
-calls=20 111
-1219 0
+fn=norm
+1918 628
+cfn=<method 'reduce' of 'numpy.ufunc' objects>
+calls=134250 0
+1918 418
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
+cfn=asarray
+calls=134250 392
+1918 141
+cfn=<method 'conj' of 'numpy.ndarray' objects>
+calls=134250 0
+1918 28
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/function_base.py
-fn=copy
-786 0
-cfn=<numpy.core.multiarray.array>
-calls=2 0
-786 0
-
-fn=<method 'rstrip' of 'str' objects>
+fn=<numpy.core.umath.geterrobj>
 0 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
+fn=amin
+2132 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
+cfn=_amin
+calls=31 19
+2132 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
+fn=save
+269 0
+cfn=<id>
+calls=2 0
+269 0
+cfn=<method 'get' of 'dict' objects>
+calls=4 0
+269 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
+cfn=persistent_id
+calls=2 333
+269 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
+cfn=save_list
+calls=2 591
+269 0
+
+fn=<method 'any' of 'numpy.ndarray' objects>
+0 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
+cfn=_any
+calls=30 31
+0 0
+
+fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/FaceDetector.py
+fn=adjustRect
+93 0
+
+fl=/Users/frieda/Documents/Coding/Learning/FaceDetection/HelperFunctions.py
+fn=markTime
+22 0
+cfn=<time.time>
+calls=4 0
+22 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
+fn=amax
+2048 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
+cfn=_amax
+calls=31 15
+2048 0
+
+fn=<numpy.core.umath.seterrobj>
+0 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+fn=__init__
+689 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+cfn=__init__
+calls=20 661
+689 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
+fn=__exit__
+2710 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
+cfn=seterr
+calls=30 2320
+2710 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
+fn=any
+1762 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/numeric.py
+cfn=asanyarray
+calls=30 462
+1762 0
+cfn=<method 'any' of 'numpy.ndarray' objects>
+calls=30 0
+1762 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/fromnumeric.py
+fn=repeat
+347 0
+cfn=<method 'repeat' of 'numpy.ndarray' objects>
+calls=1 0
+347 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
 fn=__init__
 173 0
 
+fn=<method 'rstrip' of 'str' objects>
+0 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+fn=__init__
+700 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
+cfn=__init__
+calls=20 533
+700 1
+
 fn=<len>
 0 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/linalg/linalg.py
-fn=isComplexType
-111 0
-cfn=<issubclass>
-calls=80 0
-111 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
+fn=_amax
+15 0
+cfn=<method 'reduce' of 'numpy.ufunc' objects>
+calls=31 0
+15 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
 fn=persistent_id
@@ -1426,21 +772,29 @@ fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/nu
 fn=geterr
 2416 0
 cfn=<numpy.core.umath.geterrobj>
-calls=62 0
+calls=60 0
 2416 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-fn=_count_reduce_items
-39 0
-cfn=<isinstance>
-calls=3 0
-39 0
 
 fn=<range>
 0 0
 
-fn=<method 'close' of 'file' objects>
-0 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
+fn=save_list
+591 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
+cfn=memoize
+calls=2 227
+591 0
+cfn=<iter>
+calls=2 0
+591 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
+cfn=_batch_appends
+calls=2 608
+591 0
+cfn=<method 'write' of 'file' objects>
+calls=2 0
+591 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 fn=__init__
@@ -1460,22 +814,8 @@ calls=800 175
 fn=<method 'write' of 'file' objects>
 0 0
 
-fn=<__import__>
-0 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-fn=save_string
-480 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py
-cfn=memoize
-calls=6 227
-480 0
-cfn=<method 'write' of 'file' objects>
-calls=6 0
-480 0
-cfn=<repr>
-calls=6 0
-480 0
+fn=<math.exp>
+0 19
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 fn=_extendLine
@@ -1493,20 +833,6 @@ fn=<method 'pop' of 'dict' objects>
 fn=<numpy.core.multiarray.arange>
 0 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/lib/twodim_base.py
-fn=eye
-170 0
-cfn=<numpy.core.multiarray.zeros>
-calls=20 0
-170 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/_methods.py
-fn=_any
-31 0
-cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=33 0
-31 0
-
 fn=<method 'ravel' of 'numpy.ndarray' objects>
 0 0
 
@@ -1514,15 +840,7 @@ fn=<issubclass>
 0 0
 
 fn=<repr>
-0 1
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-fn=__init__
-700 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
-cfn=__init__
-calls=20 533
-700 2
+0 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/arrayprint.py
 fn=__init__
@@ -1532,5 +850,5 @@ fn=<method 'disable' of '_lsprof.Profiler' objects>
 0 0
 
 fn=<method 'conj' of 'numpy.ndarray' objects>
-0 34
+0 28
 

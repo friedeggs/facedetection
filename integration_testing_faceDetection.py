@@ -271,25 +271,25 @@ def markTime():
     thisTime = time.time()/1000
     print "Time elapsed: %s", thisTime - lastTime
     lastTime = thisTime
-def testFitTree():
-    data = loadDetector('residuals.pkl')
-    # print np.shape(data), data[0]
-    global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
-    loadData()
-    calculateMeanShape()
-    generateTrainingData()
-    samplePoints, samplePairs, priorWeights = samplePixels()
-    for i in range(N/2):
-        residuals[i] = np.random.normal(loc=3, scale=2, size=np.shape(meanShape))
-    for i in range(N/4):
-        residuals[i+N/2] = np.random.normal(loc=20, scale=3, size=np.shape(meanShape))
-    for i in range(N/4):
-        residuals[i+3*N/4] = np.random.normal(loc=-100, scale=1, size=np.shape(meanShape))
-    h, w = np.shape(meanShape)
-    # residuals.reshape((N, h, w))
-    tree = fitRegressionTree()
-    for i in N:
-        print tree.eval(I[0], residuals[i], None)[:5], residuals[i][:5]
+# def testFitTree():
+#     data = loadDetector('residuals.pkl')
+#     # print np.shape(data), data[0]
+#     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
+#     loadData()
+#     calculateMeanShape()
+#     generateTrainingData()
+#     samplePoints, samplePairs, priorWeights = samplePixels()
+#     for i in range(N/2):
+#         residuals[i] = np.random.normal(loc=3, scale=2, size=np.shape(meanShape))
+#     for i in range(N/4):
+#         residuals[i+N/2] = np.random.normal(loc=20, scale=3, size=np.shape(meanShape))
+#     for i in range(N/4):
+#         residuals[i+3*N/4] = np.random.normal(loc=-100, scale=1, size=np.shape(meanShape))
+#     h, w = np.shape(meanShape)
+#     # residuals.reshape((N, h, w))
+#     tree = fitRegressionTree()
+#     for i in N:
+#         print tree.eval(I[0], residuals[i], None)[:5], residuals[i][:5]
 def learnFaceDetector(save=True, test=True):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     # markTime()
@@ -380,24 +380,24 @@ def detectFace(faceDetector, image):
             cv2.imwrite(saveTestPath + '_temp_' + str(x) + '.jpg', image)
             x += 1
     return predictedShape
-def run_test():
-    loadData()
-    calculateMeanShape()
-    detector = loadDetector()
-    for T in range(1,10):
-        predictedShape = detectFace(detector, I[T])
-        # print predictedShape
-        image = I[T].copy()
-        width, height = np.shape(image)
-        s = 5
-        for a,b in predictedShape:
-            a = int(a)
-            b = int(b)
-            for i in range(a-s, a+s):
-                for j in range(b-s,b+s):
-                    if i < height and j < width and i >= 0 and j >= 0:
-                        image[j,i] = 255
-        cv2.imwrite(saveTestPath + '_checkpoint_' + str(T) + '.jpg', image)
+# def run_test():
+#     loadData()
+#     calculateMeanShape()
+#     detector = loadDetector()
+#     for T in range(1,10):
+#         predictedShape = detectFace(detector, I[T])
+#         # print predictedShape
+#         image = I[T].copy()
+#         width, height = np.shape(image)
+#         s = 5
+#         for a,b in predictedShape:
+#             a = int(a)
+#             b = int(b)
+#             for i in range(a-s, a+s):
+#                 for j in range(b-s,b+s):
+#                     if i < height and j < width and i >= 0 and j >= 0:
+#                         image[j,i] = 255
+#         cv2.imwrite(saveTestPath + '_checkpoint_' + str(T) + '.jpg', image)
 def displayPrediction(im, predictedShape, show=False, savePath=None):
     image = im.copy()
     width, height = np.shape(image)
@@ -470,3 +470,4 @@ if __name__ == '__main__':
     # faceDetector = strongRegressors
     # if(save):
     #     saveDetector(faceDetector, savePath)
+    pass
