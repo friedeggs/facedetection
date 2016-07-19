@@ -19,6 +19,8 @@ def save(obj, filename):
     f = open(resultsPath + filename + '.pkl', 'w')
     pickle.dump(obj, f)
     f.close()
+def output(s):
+    print s
 def markTime():
     global lastTime
     thisTime = time.time()

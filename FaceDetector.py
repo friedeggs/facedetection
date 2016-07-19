@@ -52,7 +52,7 @@ def detectFaceRectangle(image, ind=0): # TODO test
                     minNeighbors=2,
                     minSize=(width/4, height/4))
                     # minSize = (10,10))
-        print faces
+        # print faces
         index = 0
         while len(faces) == 0 and index+1 < len(faceCascades):
             index += 1
@@ -62,7 +62,7 @@ def detectFaceRectangle(image, ind=0): # TODO test
                         minNeighbors=3,
                         minSize=(width/3, height/3))
                         # minSize = (10,10))
-            print faces
+            # print faces
         if len(faces) == 0:
             return None
         index = np.argmax(faces[:,2]) # argmax of width # and height

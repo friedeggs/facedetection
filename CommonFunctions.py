@@ -13,13 +13,15 @@ def samplePixels(meanWidthX, meanHeightX, meanWidthY, meanHeightY):
     total = sum(priorWeights)
     priorWeights = [x / total for x in priorWeights]
     samplePairs = pairs
-    presampledPairs = np.random.choice(len(samplePairs), K*S*(2**F), p=priorWeights)
+    # presampledPairs = np.random.choice(len(samplePairs), K*S*(2**F), p=priorWeights)
+    presampledPairs = np.random.choice(len(samplePairs), 20*20*10, p=priorWeights)
     counter = 0
     return points, pairs, priorWeights
 def samplePair():
     global counter
     counter += 1
     return samplePairs[presampledPairs[counter-1]]
+    # return samplePairs[np.random.choice(len(samplePairs), p=priorWeights)]
 def generateCandidateSplit():
     pair = samplePair()
     threshold = random.randint(76, 178) # random.randint(0, 255) # TODO placeholder

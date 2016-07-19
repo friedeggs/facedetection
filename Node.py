@@ -21,11 +21,11 @@ def split_diff(image, node, meanShape, shapeEstimate, similarityTransform, adjus
 def splitPoints2(I, pi, meanShape, Q, theta): # [CHECKED]
     tau, u, v = theta
     thresholds = [split_diff(I[pi[i]], theta, meanShape, shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]]) for i in Q]
-    total = [x for (y,x) in sorted(zip(thresholds,Q))]
-    cutoff = random.randint(1, len(Q)-1)
-    left = total[cutoff:]
-    right = total[:cutoff]
-    tau = (thresholds[cutoff-1] + thresholds[cutoff])/2 # TODO should be changed
+    total = np.array(sorted(zip(thresholds,Q))) # increasing # TODO rough, possibly inefficient. could just get the two threshold elements
+    cutoff = random.randint(1, len(Q)-1) # includes len(Q)-1; cutoff includes that element and up, so each side always has at least one element
+    left = total[cutoff:][:,1] # includes cutoff
+    right = total[:cutoff][:,1]
+    tau = (total[cutoff-1][0] + total[cutoff][0])/2 # TODO should be changed
     # print "tau:", tau
     return left, right, (tau, u, v)
 def splitPoints(I, pi, meanShape, Q, theta):
