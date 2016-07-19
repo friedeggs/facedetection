@@ -17,10 +17,10 @@ cascadePaths = [
     ]
 # faceCascades = [[cv2.CascadeClassifier(path) for path in cascades] for cascades in cascadePaths]
 faceCascades = [cv2.CascadeClassifier(path) for path in cascadePaths]
-window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
-width = 1000
-height = 800
-cv2.resizeWindow('Rectangle', 1000, 800)
+# window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
+# width = 1000
+# height = 800
+# cv2.resizeWindow('Rectangle', 1000, 800)
 class FaceDetector:
     meanRectangle = []
     def __init__(self, meanShape, strongRegressors):

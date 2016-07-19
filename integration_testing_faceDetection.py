@@ -435,7 +435,7 @@ def displayPrediction(im, predictedShape, show=False, savePath=None):
 if __name__ == '__main__':
     # testFitTree()
     # detector = learnFaceDetector()
-    run_test()
+    # run_test()
 
     # # global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     # loadData()

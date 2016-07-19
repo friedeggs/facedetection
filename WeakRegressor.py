@@ -13,8 +13,7 @@ class RegressionTree:
         self.meanShape = meanShape
     def eval(self, image, shapeEstimate, shapeTransform, adjustment): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.depth == 1: # leaf
-            # print self.node[:1]
-            return self.node # need to transform???? No, right? because these are the residuals, which we did not transform when computing
+            return self.node
         # sys.stdout.write(str(split(image, self.node, self.meanShape, shapeEstimate, shapeTransform)))
         if split(image, self.node, self.meanShape, shapeEstimate, shapeTransform, adjustment) == 1:
             return self.leftTree.eval(image, shapeEstimate, shapeTransform, adjustment)
@@ -38,12 +37,10 @@ def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
     maxval = 0
     for i in range(S):
         candidateSplit = generateCandidateSplit()
-        # print "candidate split: ", candidateSplit
         val, q_l, q_r, mu_l0, mu_r0, candidateSplit = tryNodeSplit(I, pi, meanShape, Q, mu, candidateSplit, residuals)
         if val > maxval:
             maxval = val
             split = candidateSplit
-            # print "fitnode: ", split
             Q_l = q_l
             Q_r = q_r
             mu_l = mu_l0

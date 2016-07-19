@@ -50,3 +50,6 @@ def adjustPoints(points, adjustment):
 def renormalize(points, adjustment):
     scale, offset = adjustment
     return points / scale
+def normalize(points, adjustment):
+    scale, offset = adjustment
+    return points * scale
