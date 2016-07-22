@@ -41,3 +41,15 @@ n = 20
 R = 4 # Use 1 initialization instead? >:(
 N = n*R
 lmbda = 0.03
+
+100:
+lr = 0.2
+T = 1
+K = 100
+F = 5
+P = 400
+S = 20
+n = 200
+R = 5 # Use 1 initialization instead? >:(
+N = n*R
+lmbda = 0.05

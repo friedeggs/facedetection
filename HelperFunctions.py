@@ -38,12 +38,12 @@ def markImage(im, predictedShape, markSize=3, color=255):
                 if i < height and j < width and i >= 0 and j >= 0:
                     image[j,i] = color
     return image
-def drawRect(im, rect, thickness=5):
+def drawRect(im, rect, color=255, thickness=5):
     x,y,w,h = rect
-    cv2.line(im, (x,y), (x,y+h), thickness)
-    cv2.line(im, (x,y+h), (x+w,y+h), thickness)
-    cv2.line(im, (x+w,y+h), (x+w,y), thickness)
-    cv2.line(im, (x+w,y), (x,y), thickness)
+    cv2.line(im, (x,y), (x,y+h), color, thickness)
+    cv2.line(im, (x,y+h), (x+w,y+h), color, thickness)
+    cv2.line(im, (x+w,y+h), (x+w,y), color, thickness)
+    cv2.line(im, (x+w,y), (x,y), color, thickness)
     return im
 def saveImage(image, path=resultsPath):
     cv2.imwrite(path + '_temp_' + str(x) + '.jpg', image) # TODO

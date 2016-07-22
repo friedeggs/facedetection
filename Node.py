@@ -3,7 +3,11 @@ from profilestats import profile
 import numpy as np
 import random
 from Settings import *
-from MathFunctions import warpPoint, adjustPoints
+from MathFunctions import warpPoint, adjustPoints, closest, normalize
+from HelperFunctions import markImage, displayImage, drawRect
+import cv2
+class Node:
+    meanDelta = []
 def __init__(self, tau, u, v):
     self.tau = tau
     self.u = u
@@ -63,3 +67,36 @@ def split(image, node, meanShape, shapeEstimate, similarityTransform, adjustment
         return 1
     else:
         return 0
+def showSplits(I, pi, node, meanShape, Q, residuals):
+    tau, u, v = node
+    thickness = 5
+
+    for i in Q:
+        image = I[pi[i]]
+        shapeEstimate, similarityTransform, adjustment = shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]]
+
+        u1 = warpPoint(u, meanShape, shapeEstimate, similarityTransform)
+        v1 = warpPoint(v, meanShape, shapeEstimate, similarityTransform)
+        u1 = adjustPoints(u1, adjustment)
+        v1 = adjustPoints(v1, adjustment)
+        w, h = np.shape(image)
+        # u0 = shapeEstimate[closest(u, meanShape)]
+        # v0 = shapeEstimate[closest(v, meanShape)]
+        adjustedMeanShape = adjustPoints(meanShape, adjustment)
+        u0 = adjustedMeanShape[closest(u, meanShape)]
+        v0 = adjustedMeanShape[closest(v, meanShape)]
+        im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
+        im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
+
+        im = markImage(image, np.array([u1, v1, u0, v0]), markSize=5)
+        im = markImage(im, adjustedMeanShape, color=0)
+        im = markImage(im, shapeEstimate, color=255)
+        # im = markImage(im, shapeEstimate + normalize(residuals[i] + Node.meanDelta, adjustment), color=255)
+        cv2.line(im, tuple(map(int, u1)), tuple(map(int, u0)), thickness)
+        cv2.line(im, tuple(map(int, u1)), tuple(map(int, v1)), thickness)
+        cv2.line(im, tuple(map(int, v1)), tuple(map(int, v0)), thickness)
+        if im_u - im_v > tau:
+            im = drawRect(im, (0,0,w,h), color=255)
+        else:
+            im = drawRect(im, (0,0,w,h), color=0)
+        displayImage(im)

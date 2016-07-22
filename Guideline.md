@@ -77,3 +77,15 @@ Adding to list changes the original list unlike tuples, which are immutable
 
 # OpenCV Face Detectors
 /usr/local/Cellar/opencv3/3.1.0/share/OpenCV/haarcascades
+
+# Directions
+- Go through all TODO comments
+- Step by step in depth run
+- Speed up / Rewrite in C++
+- Cut out huge inefficiency in reevaluating strongRegressors each and every time!! this contributes to almost an additional 30s by the 100th tree
+
+# Adjustments
+I shouldn't have adjustments at all
+The mean shape needs to be scaled and offset to the image
+All of this is contained in the similarity transform and warp point
+None of the adjustment nonsense is necessary

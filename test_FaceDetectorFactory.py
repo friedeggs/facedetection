@@ -14,6 +14,7 @@ from HelperFunctions import *
 from CommonFunctions import *
 from Settings import *
 import unittest, nose
+from Node import Node
 random.seed()
 strongRegressors = [[] for i in range(T)]
 shapeDeltas = [[] for i in range(N)]
@@ -103,7 +104,7 @@ def updateShapes(t):
         shapeEstimates[i] += strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]])
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
 # class TestFaceDetectorFactory(unittest.TestCase):
-@profile(print_stats=20, dump_stats=True)
+# @profile(print_stats=20, dump_stats=True)
 def test_learnFaceDetector(saveDetector=True, test=True, saveIntermediates=True, debug=True):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
     try:
@@ -123,6 +124,7 @@ def test_learnFaceDetector(saveDetector=True, test=True, saveIntermediates=True,
             ''' Get mean shape '''
             print "Learning strong regressor ", str(t+1)
             meanDelta = groundEstimate(shapeDeltas)
+            Node.meanDelta = meanDelta
             strongRegressors[t] = StrongRegressor(groundEstimate(shapeDeltas))
             print "Calculating similarity transforms"
             calculateSimilarityTransforms()

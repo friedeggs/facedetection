@@ -4,7 +4,7 @@ np.set_printoptions(threshold=np.inf) # for testing
 import sys
 from Settings import *
 from CommonFunctions import generateCandidateSplit
-from Node import tryNodeSplit, split
+from Node import tryNodeSplit, split, showSplits
 import pytest
 import nose
 from HelperFunctions import save
@@ -61,6 +61,8 @@ def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
             Q_r = q_r
             mu_l = mu_l0
             mu_r = mu_r0
+    print split, Q, Q_l, Q_r
+    showSplits(I, pi, split, meanShape, Q, residuals)
     tree = RegressionTree(split, meanShape, depth)
     if depth > 1:
         tree.leftTree = fitNode(I, pi, meanShape, Q_l, mu_l, depth - 1, residuals)
