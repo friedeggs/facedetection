@@ -29,3 +29,15 @@ N = n*R
 lmbda = 0.02
 
 20s:
+
+60_0.2:
+lr = 0.5
+T = 1
+K = 60
+F = 5
+P = 400
+S = 20
+n = 20
+R = 4 # Use 1 initialization instead? >:(
+N = n*R
+lmbda = 0.03

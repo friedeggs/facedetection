@@ -28,10 +28,10 @@ def calculateSimilarityTransforms():
         similarityTransforms[i] = calculateSimilarityTransform(meanShape, shapeEstimates[i]) # IMPORTANT do not use list comprehension
 def groundEstimate(shapes):
     return np.mean(shapes, axis=0)
-def loadData(): # [CHECKED]
+def loadData(start=0): # [CHECKED]
     ''' Load images and shapes '''
     for i in range(n):
-        filePath = basePath + 'annotation/' + str(i+1) + '.txt'
+        filePath = basePath + 'annotation/' + str(start+i+1) + '.txt'
         imagePath = ""
         with open(filePath, 'r') as f:
             imagePath = f.readline().rstrip('\n').rstrip('\r')
@@ -152,8 +152,8 @@ def test_learnFaceDetector(saveDetector=True, test=True, saveIntermediates=True,
                         cv2.imwrite(resultsPath + 'debug_' + str(t+1) + '_' + str(j) + '.jpg', image)
                         markTime()
                     raw_input()
-                if False:
-                    for j in range(0, 1*R, R):
+                if debug and (k < 4 or (k+1) % 20 == 0):
+                    for j in range(0, 5*R, R/2):
                         im = I[pi[j]].copy()
                         # shapeEstimate = adjustToFit(shapeEstimates[j], rectangles[pi[j]])
 
@@ -165,7 +165,7 @@ def test_learnFaceDetector(saveDetector=True, test=True, saveIntermediates=True,
                         # np.testing.assert_almost_equal(val[0], residuals[residual_index][0])
                         # val = strongRegressors[0].weakRegressors[0].eval(I[pi[j]], shapeEstimates[j], similarityTransforms[j], imageAdapters[pi[j]])
                         res = np.array(residual_index)
-                        print residual_index
+                        # print residual_index
                         # np.testing.assert_almost_equal(val, residuals[j])
                         # im = markImage(im, updatedShape[j],color=0)
 
@@ -213,31 +213,38 @@ def showFaceDetector():
     # cv2.resizeWindow('Rectangle', 1000, 800)
     # width, height = 1000, 800
     rect, im = detectFaceRectangle(I[0])
-    im = im.copy()
+    # im = im.copy()
+    im = np.zeros(np.shape(im))
     # im = drawRect(im, rect)
     shape = adjustToFit(meanShape, rect)
     adjustment = adjustToFit(meanShape, rect, adapterOnly=True)
     splits = []
-    for i in range(10):
-        splits += strongRegressors[0].weakRegressors[i].splits()
-    for split in splits:
+    # for i in range(60):
+    for weakRegressor in strongRegressors[0].weakRegressors:
+        splits += weakRegressor.splits()
+        # splits += strongRegressors[0].weakRegressors[i].splits()
+    count = len(splits)
+    for i in range(count):
+        split = splits[i]
         threshold, p0, p1 = split
         pair = np.array([p0,p1])
         adjustedPair = adjustPoints(pair, adjustment)
         adjustedPair = [[int(s) for s in p] for p in adjustedPair]
         adjustedPair = tuple(map(tuple,adjustedPair))
         # print pair, adjustPoints(pair,adjustment)
-        cv2.line(im, adjustedPair[0], adjustedPair[1], color=255, thickness=1)
+        cv2.line(im, adjustedPair[0], adjustedPair[1], color=0 + 255./(count-1)*i, thickness=1)
         im = markImage(im, adjustPoints(pair, adjustment), markSize=4)
     # im = markImage(im, shape)
     displayImage(im)
     # im = cv2.resize(im,(width, height))
     # cv2.imshow('Rectangle', im)
     # cv2.waitKey()
+    cv2.imwrite('results/regression_trees_visualization_100_black.jpg', im)
 def test():
-    I, shapes = loadData()
-    meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY = calculateMeanShape(shapes)
-    detector = load('temp_strong_regressor_saved')
+    I, shapes = loadData(200)
+    # meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY = calculateMeanShape(shapes)
+    detector = load('face_detector')
+    # detector.strongRegressors[0].weakRegressors = detector.strongRegressors[0].weakRegressors[:40]
     # strongRegressors[0] = detector
     # strongRegressors = load('temp_strong_regressor_saved')
     # detector = FaceDetector(meanShape, strongRegressors)
@@ -258,9 +265,9 @@ def test():
         # cv2.waitKey()
         # cv2.imwrite(resultsPath + testPath + str(i) + '.jpg', image)
 if __name__ == '__main__':
-    # test_learnFaceDetector(debug=True, saveDetector=False)
+    test_learnFaceDetector(debug=True, saveDetector=False)
     # testFaceDetector()
     # test()
-    showFaceDetector()
+    # showFaceDetector()
     # unittest.main()
     markTime()

@@ -39,15 +39,15 @@ def tryNodeSplit(I, pi, meanShape, Q, mu, theta, residuals):
     if len(Q_l) == 0:
         mu_theta_l = 0
         mu_theta_r = np.mean([residuals[i] for i in Q_r], 0)
-        assert(1==0) # throw error
+        # assert(1==0) # throw error
     else:
         mu_theta_l = np.mean([residuals[i] for i in Q_l], 0)
         if len(Q_r) == 0:
             mu_theta_r = 0
-            assert(1==0) # throw error
+            # assert(1==0) # throw error
         else:
             mu_theta_r = (len(Q)*mu - len(Q_l) * mu_theta_l) / len(Q_r)
-    np.testing.assert_almost_equal(mu_theta_r, np.mean([residuals[i] for i in Q_r], 0))
+    # np.testing.assert_almost_equal(mu_theta_r, np.mean([residuals[i] for i in Q_r], 0))
     val = len(Q_l) * np.linalg.norm(mu_theta_l) + len(Q_r) * np.linalg.norm(mu_theta_r)
     return val, Q_l, Q_r, mu_theta_l, mu_theta_r, theta
 def split(image, node, meanShape, shapeEstimate, similarityTransform, adjustment):
