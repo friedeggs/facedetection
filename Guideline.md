@@ -89,3 +89,10 @@ I shouldn't have adjustments at all
 The mean shape needs to be scaled and offset to the image
 All of this is contained in the similarity transform and warp point
 None of the adjustment nonsense is necessary
+
+## Concession
+Well, some of it made sense as in the case of scaling residuals
+Where it is not necessary is in mapping splits to the estimated shape
+
+# Wastage
+get rid of meanshape field for each weakregressor split even IF it is a pointer??

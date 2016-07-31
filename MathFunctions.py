@@ -34,7 +34,7 @@ def applyRotation(transform, points):
     S, R, t = transform
     return np.transpose(np.dot(R, np.transpose(points)))
 def closest(node, nodes):
-    nodes = np.asarray(nodes)
+    # nodes = np.asarray(nodes)
     deltas = nodes - node
     dist_2 = np.einsum('ij,ij->i', deltas, deltas)
     return np.argmin(dist_2)

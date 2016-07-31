@@ -5,6 +5,7 @@ from MathFunctions import prior, adjustPoints
 import cv2
 from HelperFunctions import markImage
 from FaceDetector import detectFaceRectangle, adjustToFit
+# random.seed() # this should be here
 def samplePixels(meanWidthX, meanHeightX, meanWidthY, meanHeightY):
     global samplePairs, priorWeights, presampledPairs, counter
     height = meanHeightY-meanHeightX

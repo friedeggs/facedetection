@@ -23,24 +23,28 @@ faceCascades = [cv2.CascadeClassifier(path) for path in cascadePaths]
 # cv2.resizeWindow('Rectangle', 1000, 800)
 class FaceDetector:
     meanRectangle = []
-    def __init__(self, meanShape, strongRegressors):
+    def __init__(self, meanShape, strongRegressors, adjustment=None):
         self.meanShape = meanShape
         self.strongRegressors = strongRegressors
         x,y = meanShape.min(0) # just different way to get min as opposed to np.min(array,0)
         X,Y = meanShape.max(0)
         self.meanRectangle = (x,y,X-x,Y-y) # meanRectangle # or compute meanRectangle from meanShape
-    def detectFace(self, image):
+        self.adjustment = adjustment
+    def detectFace(self, image, meanShape=None):
         transform = (1, np.identity(2), 0) # identity transform
+        # transform = calculateSimilarityTransform(meanShape, self.meanShape) # IMPORTANT do not use list comprehension
         shapeRectangle, im = detectFaceRectangle(image)
         adjustment = adjustToFit(self.meanShape, shapeRectangle, adapterOnly=True)
         predictedShape = adjustToFit(self.meanShape, shapeRectangle)
+        # adjustment = self.adjustment # testing
+        # predictedShape = np.copy(self.meanShape) # testing
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
                 # print "predicting"
                 delta = strongRegressor.eval(image, predictedShape, transform, adjustment)
-                predictedShape += normalize(delta, adjustment)
+                # print delta[:2]
+                predictedShape += delta # normalize(delta, adjustment)
                 transform = calculateSimilarityTransform(self.meanShape, predictedShape)
-                # print delta[:5]
         return predictedShape # adjustPoints(predictedShape, adjustment)
 def detectFaceRectangle(image, ind=0): # TODO test
     width, height = np.shape(image)

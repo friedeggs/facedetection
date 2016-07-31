@@ -47,11 +47,13 @@ def fitRegressionTree(I, pi, meanShape, residuals):
     return tree
 def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
     if depth == 1 or len(Q) == 1: # TODO check if should be 0 instead
+        # print Q[0]
         # nose.tools.assert_equal(len(Q), 1)
         # np.testing.assert_almost_equal(residuals[Q[0]], mu)
         return RegressionTree(mu, residuals=Q) # Leaf node
     maxval = 0
     for i in range(S):
+        # this would fail if all the splits return 0 but that would never happen except in testing (like now)
         candidateSplit = generateCandidateSplit()
         val, q_l, q_r, mu_l0, mu_r0, candidateSplit = tryNodeSplit(I, pi, meanShape, Q, mu, candidateSplit, residuals)
         if val > maxval:
@@ -61,8 +63,8 @@ def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
             Q_r = q_r
             mu_l = mu_l0
             mu_r = mu_r0
-    print split, Q, Q_l, Q_r
-    showSplits(I, pi, split, meanShape, Q, residuals)
+    # print split, Q, Q_l, Q_r
+    # showSplits(I, pi, split, meanShape, Q, residuals)
     tree = RegressionTree(split, meanShape, depth)
     if depth > 1:
         tree.leftTree = fitNode(I, pi, meanShape, Q_l, mu_l, depth - 1, residuals)
