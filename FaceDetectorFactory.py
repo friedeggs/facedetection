@@ -30,7 +30,7 @@ def calculateSimilarityTransforms():
         similarityTransforms[i] = calculateSimilarityTransform(meanShape, shapeEstimates[i]) # IMPORTANT do not use list comprehension
 def groundEstimate(shapes):
     return np.mean(shapes, axis=0)
-def loadData(start=0): # [CHECKED]
+def loadData(start=0):
     ''' Load images and shapes '''
     for i in range(n):
         filePath = basePath + 'annotation/' + str(start+i+1) + '.txt'
@@ -59,8 +59,7 @@ def calculateMeanShape(shapes): # [CHECKED]
     meanWidthY, meanHeightY = np.max(meanShape, 0).astype(int)
     return meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY
     # meanWidth, meanHeight = np.max(meanShape - np.min(meanShape, 0), 0).astype(int)
-def generateTrainingData(I, shapes): # [CHECKED]
-    # pi = np.random.permutation(np.repeat(np.arange(N), R)) # why does it even need to be random? order never matters
+def generateTrainingData(I, shapes):
     global shapeEstimates, shapeDeltas, pi, imageAdapters
     pi = np.repeat(np.arange(N), R)
     FaceDetector.meanRectangle = (
@@ -76,25 +75,11 @@ def generateTrainingData(I, shapes): # [CHECKED]
             rectangles[i] = (x,y,X-x,Y-y)
         else:
             rectangles[i], im = result
-        # im = I[i].copy()
-        # im = drawRect(im, rectangles[i])
-        # displayImage(im)
         imageAdapters[i] = adjustToFit(meanShape, rectangles[i], adapterOnly=True) # TODO same code is run in here and shapeEstimates[i*R+j] line
     for i in range(n):
         sample = random.sample(range(i) + range(i+1, n), R) # array of length 20 containing indices
-        for j in range(R): # for efficiency don't call detectFaceRectangle R times
-            # x,y = shapes[i].min(0)
-            # X,Y = shapes[i].max(0)
-
+        for j in range(R): # TODO for efficiency don't call detectFaceRectangle R times
             shapeEstimates[i*R+j] = adjustToFit(shapes[sample[j]], rectangles[i])
-
-            # shapeEstimates[i*R+j] = np.copy(shapes[sample[j]])
-
-
-            # im = I[i].copy()
-            # im = markImage(im, shapeEstimates[i*R+j])
-            # displayImage(im)
-            # shapeEstimates[i*R+j] = adjustToFit(shapes[sample[j]], (x,y,X-x,Y-y))
         shapeEstimates[i*R] = adjustToFit(meanShape, rectangles[i]) # testing purposes
     for i in range(N):
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
@@ -102,9 +87,8 @@ def generateTrainingData(I, shapes): # [CHECKED]
 def updateShapes(t):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms
     for i in range(N):
-        shapeEstimates[i] += evaluatedRegressor[i] # normalize(evaluatedRegressor[i], imageAdapters[pi[i]]) # strongRegressors[t].eval(I[pi[i]], shapeEstimates[i], similarityTransforms[i], imageAdapters[pi[i]])
+        shapeEstimates[i] += evaluatedRegressor[i]
         shapeDeltas[i] = shapes[pi[i]] - shapeEstimates[i]
-# class TestFaceDetectorFactory(unittest.TestCase):
 @profile(print_stats=20, dump_stats=True)
 def test_learnFaceDetector(saveDetector=True, test=True, saveIntermediates=True, debug=True):
     global shapeEstimates, shapeDeltas, strongRegressors, shapes, similarityTransforms, residuals, samplePoints, samplePairs, priorWeights
@@ -223,7 +207,6 @@ def test_learnFaceDetector(saveDetector=True, test=True, saveIntermediates=True,
                         #     # )
 
                         displayImage(im)
-            # nose.tools.assert_equal(1, 0) # deliberately fail to produce output
             print "Updating shape estimates"
             if t < T:
                 updateShapes(t)
@@ -231,10 +214,8 @@ def test_learnFaceDetector(saveDetector=True, test=True, saveIntermediates=True,
             save(strongRegressors[t], tempPath + 'strong_regressor_' + str(t+1))
             if test:
                 for i in range(min(n, 20)):
-                    # predictedShape = detectFace(strongRegressors, I[0])
                     predictedShape = FaceDetector.detectFace(FaceDetector(meanShape, strongRegressors), I[i])
                     image = markImage(I[i], predictedShape)
-                    # width, height = np.shape(image)
                     cv2.imwrite(resultsPath + tempPath + str(t+1) + '_' + str(i) + '.jpg', image)
                     markTime()
     finally:
@@ -248,9 +229,6 @@ def showFaceDetector():
     I, shapes = loadData()
     meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY = calculateMeanShape(shapes)
     strongRegressors = load('temp_strong_regressor_saved').strongRegressors
-    # window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow('Rectangle', 1000, 800)
-    # width, height = 1000, 800
     rect, im = detectFaceRectangle(I[0])
     # im = im.copy()
     im = np.zeros(np.shape(im))
@@ -258,10 +236,8 @@ def showFaceDetector():
     shape = adjustToFit(meanShape, rect)
     adjustment = adjustToFit(meanShape, rect, adapterOnly=True)
     splits = []
-    # for i in range(60):
     for weakRegressor in strongRegressors[0].weakRegressors:
         splits += weakRegressor.splits()
-        # splits += strongRegressors[0].weakRegressors[i].splits()
     count = len(splits)
     for i in range(count):
         split = splits[i]
@@ -270,48 +246,25 @@ def showFaceDetector():
         adjustedPair = adjustPoints(pair, adjustment)
         adjustedPair = [[int(s) for s in p] for p in adjustedPair]
         adjustedPair = tuple(map(tuple,adjustedPair))
-        # print pair, adjustPoints(pair,adjustment)
         cv2.line(im, adjustedPair[0], adjustedPair[1], color=0 + 255./(count-1)*i, thickness=1)
         im = markImage(im, adjustPoints(pair, adjustment), markSize=4)
-    # im = markImage(im, shape)
     displayImage(im)
-    # im = cv2.resize(im,(width, height))
-    # cv2.imshow('Rectangle', im)
-    # cv2.waitKey()
-    cv2.imwrite('results/regression_trees_visualization_updated.jpg', im)
-def test():
+    cv2.imwrite('results/regression_trees_visualization.jpg', im)
+def testFaceDetector():
     I, shapes = loadData(200)
     meanShape, meanWidthX, meanHeightX, meanWidthY, meanHeightY = calculateMeanShape(shapes)
-    # detector = load('face_detector')
-    detector = load('save/saved_100_5/temp_strong_regressor_saved')
+    detector = load('face_detector')
     meanShape = detector.meanShape
-    # detector.strongRegressors[0].weakRegressors = detector.strongRegressors[0].weakRegressors[:40]
-    # strongRegressors[0] = detector
-    # strongRegressors = load('temp_strong_regressor_saved')
-    # detector = FaceDetector(meanShape, strongRegressors)
-    # window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow('Rectangle', 1000, 800)
     for i in range(0,20):
         predictedShape = detector.detectFace(I[i])
-        # index = random.randint(0,n-1)
-        # startingShape = shapes[index]
         rectangle, im = detectFaceRectangle(I[i])
-        # startingShapeAdjusted = adjustToFit(startingShape, rectangle)
-        # predictedShape = FaceDetector.detectFace(FaceDetector(startingShape, strongRegressors), I[i]) # used to be meanShape
-        # image = markImage(I[i], startingShapeAdjusted, color=0)
         image = I[i]
         adjustedMeanShape = adjustToFit(meanShape, rectangle)
         image = markImage(image, adjustedMeanShape, color=0)
         image = markImage(image, predictedShape)
         displayImage(image)
-        # res = cv2.resize(image, (1000, 800))
-        # cv2.imshow('Rectangle', res)
-        # cv2.waitKey()
         cv2.imwrite(resultsPath + testPath + str(i) + '.jpg', image)
 if __name__ == '__main__':
-    # test_learnFaceDetector(debug=True, saveDetector=True)
-    # testFaceDetector()
-    test()
+    learnFaceDetector(debug=True, saveDetector=True)
+    testFaceDetector()
     # showFaceDetector()
-    # unittest.main()
-    markTime()

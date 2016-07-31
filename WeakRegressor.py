@@ -19,16 +19,13 @@ class RegressionTree:
     def eval(self, image, shapeEstimate, shapeTransform, adjustment): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.depth == 1: # leaf
             return self.node
-        # sys.stdout.write(str(split(image, self.node, self.meanShape, shapeEstimate, shapeTransform)))
         if split(image, self.node, self.meanShape, shapeEstimate, shapeTransform, adjustment) == 1:
             return self.leftTree.eval(image, shapeEstimate, shapeTransform, adjustment)
         else:
             return self.rightTree.eval(image, shapeEstimate, shapeTransform, adjustment)
     def special_eval(self, image, shapeEstimate, shapeTransform, adjustment): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.depth == 1: # leaf
-            # print "residual ------- ", self.residual
             return self.node, self.residuals
-        # sys.stdout.write(str(split(image, self.node, self.meanShape, shapeEstimate, shapeTransform)))
         if split(image, self.node, self.meanShape, shapeEstimate, shapeTransform, adjustment) == 1:
             return self.leftTree.special_eval(image, shapeEstimate, shapeTransform, adjustment)
         else:
@@ -47,7 +44,6 @@ def fitRegressionTree(I, pi, meanShape, residuals):
     return tree
 def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
     if depth == 1 or len(Q) == 1: # TODO check if should be 0 instead
-        # print Q[0]
         # nose.tools.assert_equal(len(Q), 1)
         # np.testing.assert_almost_equal(residuals[Q[0]], mu)
         return RegressionTree(mu, residuals=Q) # Leaf node
@@ -63,8 +59,6 @@ def fitNode(I, pi, meanShape, Q, mu, depth, residuals):
             Q_r = q_r
             mu_l = mu_l0
             mu_r = mu_r0
-    # print split, Q, Q_l, Q_r
-    # showSplits(I, pi, split, meanShape, Q, residuals)
     tree = RegressionTree(split, meanShape, depth)
     if depth > 1:
         tree.leftTree = fitNode(I, pi, meanShape, Q_l, mu_l, depth - 1, residuals)

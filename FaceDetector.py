@@ -17,10 +17,6 @@ cascadePaths = [
     ]
 # faceCascades = [[cv2.CascadeClassifier(path) for path in cascades] for cascades in cascadePaths]
 faceCascades = [cv2.CascadeClassifier(path) for path in cascadePaths]
-# window = cv2.namedWindow('Rectangle', cv2.WINDOW_NORMAL)
-# width = 1000
-# height = 800
-# cv2.resizeWindow('Rectangle', 1000, 800)
 class FaceDetector:
     meanRectangle = []
     def __init__(self, meanShape, strongRegressors, adjustment=None):
@@ -28,21 +24,16 @@ class FaceDetector:
         self.strongRegressors = strongRegressors
         x,y = meanShape.min(0) # just different way to get min as opposed to np.min(array,0)
         X,Y = meanShape.max(0)
-        self.meanRectangle = (x,y,X-x,Y-y) # meanRectangle # or compute meanRectangle from meanShape
+        self.meanRectangle = (x,y,X-x,Y-y)
         self.adjustment = adjustment
     def detectFace(self, image, meanShape=None):
         transform = (1, np.identity(2), 0) # identity transform
-        # transform = calculateSimilarityTransform(meanShape, self.meanShape) # IMPORTANT do not use list comprehension
         shapeRectangle, im = detectFaceRectangle(image)
         adjustment = adjustToFit(self.meanShape, shapeRectangle, adapterOnly=True)
         predictedShape = adjustToFit(self.meanShape, shapeRectangle)
-        # adjustment = self.adjustment # testing
-        # predictedShape = np.copy(self.meanShape) # testing
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
-                # print "predicting"
                 delta = strongRegressor.eval(image, predictedShape, transform, adjustment)
-                # print delta[:2]
                 predictedShape += delta # normalize(delta, adjustment)
                 transform = calculateSimilarityTransform(self.meanShape, predictedShape)
         return predictedShape # adjustPoints(predictedShape, adjustment)
@@ -78,9 +69,7 @@ def detectFaceRectangle(image, ind=0): # TODO test
     except():
         e = sys.exc_info()[0]
         print(e)
-        # cv2.imshow('Image', image)
-        # cv2.waitKey()
-        return FaceDetector.meanRectangle, im # TODO check if this is right in Python
+        return FaceDetector.meanRectangle, im
 def adjustToFit(shape, shapeRectangle, adapterOnly=False): # shapeRectangle is given as (x,y,w,h)
     x,y,w,h = shapeRectangle
     x = np.array([x,y])

@@ -6,7 +6,7 @@ from Settings import *
 from MathFunctions import warpPoint, adjustPoints, closest, normalize
 from HelperFunctions import markImage, displayImage, drawRect
 import cv2
-# random.seed() # also should be here
+random.seed() # also should be here
 class Node:
     meanDelta = []
 def __init__(self, tau, u, v):
@@ -91,14 +91,8 @@ def showSplits(I, pi, node, meanShape, Q, residuals):
 
         u1 = warpPoint(u, meanShape, shapeEstimate, similarityTransform)
         v1 = warpPoint(v, meanShape, shapeEstimate, similarityTransform)
-        # u1 = adjustPoints(u1, adjustment) # CONDEMNED
-        # v1 = adjustPoints(v1, adjustment)
         w, h = np.shape(image)
-        # u0 = shapeEstimate[closest(u, meanShape)]
-        # v0 = shapeEstimate[closest(v, meanShape)]
         adjustedMeanShape = adjustPoints(meanShape, adjustment)
-        # u0 = adjustedMeanShape[closest(u, meanShape)]
-        # v0 = adjustedMeanShape[closest(v, meanShape)]
         u0 = adjustPoints(u, adjustment)
         v0 = adjustPoints(v, adjustment)
         im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
