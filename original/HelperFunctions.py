@@ -5,15 +5,11 @@ import numpy as np
 import random
 import math
 import pickle
+from Settings import *
 random.seed()
 startTime = time.time()
 lastTime = startTime
-resultsPath = 'results/'
 window = cv2.namedWindow('Face Detector', cv2.WINDOW_NORMAL)
-PRINT_TIME_STATS = True
-def setPrintOptions(printTimeStats):
-    global PRINT_TIME_STATS
-    PRINT_TIME_STATS = printTimeStats
 def load(filename):
     f = open(resultsPath + filename + '.pkl', 'r')
     obj = pickle.load(f)
