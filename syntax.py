@@ -33,10 +33,17 @@ class Tree:
         return [self.node] + leftSplits + rightSplits
         # return [self.node] + self.leftTree.splits() + self.rightTree.splits()
 
+def output(str):
+    print str, 123
+
 if __name__ == '__main__':
-    t = Tree('a', Tree(1), Tree('b', Tree(2), Tree('c', Tree(4), Tree(5))))
-    print t.isLeaf(), t.leftTree.isLeaf()
-    print t.splits()
+    # output("ASdfs %d" % 423)
+    log = "Fitting weak regressor %d of %d" % (2, 3)
+    print '{:<{}s}'.format(log, 30)
+
+    # t = Tree('a', Tree(1), Tree('b', Tree(2), Tree('c', Tree(4), Tree(5))))
+    # print t.isLeaf(), t.leftTree.isLeaf()
+    # print t.splits()
 
     # b0 = B(1)
     # b0.hahaNo()

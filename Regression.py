@@ -1,15 +1,19 @@
 import numpy as np
+from MathFunctions import normalize
 
 class StrongRegressor:
     def __init__(self, base):
         self.baseFunction = np.copy(base)
         self.weakRegressors = []
+        self.lr = 0.1
+    def setLearningRate(self, learningRate):
+        self.lr = learningRate
     def add(self, weakRegressor):
         self.weakRegressors.append(weakRegressor)
-    def eval(self, image, shapeEstimate, shapeTransform, adjustment):
+    def eval(self, image, estimate, adjustment):
         res = np.copy(self.baseFunction)
         for weakRegressor in self.weakRegressors:
-            res += lr * normalize(weakRegressor.eval(image, shapeEstimate, shapeTransform, adjustment), adjustment)
+            res += self.lr * normalize(weakRegressor.eval(image, estimate), adjustment)
         return res
 
 class RegressionTree:
@@ -29,12 +33,21 @@ class RegressionTree:
 
     def eval(self, image, estimate): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.isLeaf(): # leaf
+            print self.residuals
             return self.node
         # estimate = (meanShape, shapeEstimate, shapeTransform, adjustment) # TODO clean
         if self.node.eval(image, estimate) == 1:
             return self.leftTree.eval(image, estimate)
         else:
             return self.rightTree.eval(image, estimate)
+    # def evalResiduals(self, image, estimate): # warp based on shapeEstimate which is based off result from StrongRegressor
+    #     if self.isLeaf(): # leaf
+    #         return self.residuals
+    #     # estimate = (meanShape, shapeEstimate, shapeTransform, adjustment) # TODO clean
+    #     if self.node.eval(image, estimate) == 1:
+    #         return self.leftTree.eval(image, estimate)
+    #     else:
+    #         return self.rightTree.eval(image, estimate)
     def leaves(self):
         if self.isLeaf():
             return self.node[:5]

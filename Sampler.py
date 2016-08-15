@@ -17,8 +17,10 @@ class Sampler:
         total = sum(priorWeights)
         priorWeights = [x / total for x in priorWeights]
         self.samplePairs = pairs
-        self.presampledPairs = np.random.choice(len(self.samplePairs), self.K*self.S*(2**self.F), p=priorWeights)
-        # presampledPairs = np.random.choice(len(samplePairs), 20*20*10, p=priorWeights)
+        if self.F <= 5:
+            self.presampledPairs = np.random.choice(len(self.samplePairs), self.K*self.S*(2**self.F), p=priorWeights)
+        else:
+            self.presampledPairs = np.random.choice(len(self.samplePairs), 20*20*10, p=priorWeights)
         self.counter = 0
 
     def samplePair(self):

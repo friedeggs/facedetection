@@ -5,6 +5,8 @@ import numpy as np
 import random
 import math
 import pickle
+import os
+curdir=os.path.dirname(__file__)
 random.seed()
 startTime = time.time()
 lastTime = startTime
@@ -15,21 +17,21 @@ def setPrintOptions(printTimeStats):
     global PRINT_TIME_STATS
     PRINT_TIME_STATS = printTimeStats
 def load(filename):
-    f = open(resultsPath + filename + '.pkl', 'r')
+    f = open(os.path.join(curdir, resultsPath) + filename + '.pkl', 'r')
     obj = pickle.load(f)
     f.close()
     return obj
 def save(obj, filename):
-    f = open(resultsPath + filename + '.pkl', 'w')
+    f = open(os.path.join(curdir, resultsPath) + filename + '.pkl', 'w')
     pickle.dump(obj, f)
     f.close()
 def output(s):
     print s
-def markTime():
+def mark(log):
     global lastTime
     thisTime = time.time()
     if PRINT_TIME_STATS:
-        print "\t\t -- Total time elapsed: %9.2fs, Time since last: %9.2f" % ((thisTime - startTime), (thisTime - lastTime))
+        print '{:<{}s}'.format(log, 40), "\t\t -- Total time elapsed: %9.2fs, Time since last: %9.2f" % ((thisTime - startTime), (thisTime - lastTime))
     lastTime = thisTime
 def markImage(im, predictedShape, markSize=3, color=255):
     image = im.copy()
@@ -50,7 +52,7 @@ def drawRect(im, rect, color=255, thickness=5):
     cv2.line(im, (x+w,y), (x,y), color, thickness)
     return im
 def saveImage(image, path=resultsPath):
-    cv2.imwrite(path + '_temp_' + str(x) + '.jpg', image) # TODO
+    cv2.imwrite(os.path.join(curdir, path) + '_temp_' + str(x) + '.jpg', image) # TODO
 def displayImage(image, width=1000, height=800):
     cv2.resizeWindow('Face Detector', width, height)
     image = cv2.resize(image, (width, height))

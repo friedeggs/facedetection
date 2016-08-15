@@ -1,9 +1,16 @@
+import numpy as np
+import cv2
+
 from MathFunctions import calculateSimilarityTransform, adjustPoints, normalize, renormalize, setLambda, warpPoint
 from HelperFunctions import *
 from Sampler import Sampler
-import numpy as np
-import cv2
 from Regression import StrongRegressor, RegressionTree
+
+from profilestats import profile
+import unittest, nose
+
+import os
+curdir=os.path.dirname(__file__)
 
 cascadePaths = [
     'data/lbpcascade_frontalface.xml',
@@ -16,7 +23,7 @@ cascadePaths = [
     'data/haarcascade_frontalcatface.xml',
     'data/haarcascade_frontalcatface_extended.xml'
     ]
-faceCascades = [cv2.CascadeClassifier(path) for path in cascadePaths]
+faceCascades = [cv2.CascadeClassifier(os.path.join(curdir, path)) for path in cascadePaths]
 
 def detectFaceRectangle(image, ind=0): # TODO test
     width, height = np.shape(image)
@@ -44,8 +51,6 @@ def detectFaceRectangle(image, ind=0): # TODO test
         index = np.argmax(faces[:,2]) # argmax of width # and height
         faceRect = faces[index]
         faceRect = adjustRect(faceRect) # does not affect original shapeRectangle
-        # y,x,h,w = faceRect
-        # faceRect = (x,y,w,h)
         return faceRect # TODO or return largest one?
     except():
         e = sys.exc_info()[0]
@@ -116,9 +121,6 @@ class FaceDetectorFactory:
         global meanRectangle
         self.pi = np.repeat(np.arange(self.N), self.R)
         self.meanShape = np.mean(self.shapes, 0)
-        # x1,y1 = np.min(self.meanShape, 0).astype(int)
-        # x2,y2 = np.max(self.meanShape, 0).astype(int)
-        # self.meanRectangle = (x1,y1,x2-x1,y2-y1) # TODO
         self.meanRectangle = rectangle(self.meanShape) # TODO
         meanRectangle = self.meanRectangle
         for i in range(self.n):
@@ -128,6 +130,7 @@ class FaceDetectorFactory:
             sample = random.sample(range(i) + range(i+1, self.n), self.R)
             for j in range(self.R):
                 self.shapeEstimates[i*self.R+j] = adjustToFit(self.shapes[sample[j]], self.rectangles[i])
+            self.shapeEstimates[i*self.R] = adjustToFit(self.meanShape, self.rectangles[i]) # TODO testing purposes
         for i in range(self.N):
             self.shapeDeltas[i] = self.shapes[self.pi[i]] - self.shapeEstimates[i]
 
@@ -140,6 +143,9 @@ class FaceDetectorFactory:
 
     def fitNode(self, depth, Q, mu):
         if depth == 1 or len(Q) == 1:
+            nose.tools.assert_equal(len(Q), 1)
+            np.testing.assert_almost_equal(self.residuals[Q[0]], mu)
+            print Q[0]
             return RegressionTree(mu, residuals=Q) # Leaf node
         maxval = 0
         split = None
@@ -151,9 +157,20 @@ class FaceDetectorFactory:
                 maxval = val
                 maxresult = result
         Q_l, Q_r, mu_theta_l, mu_theta_r, theta = result
-        tau,u,v = theta.tup # TODO clean this part
-        split.setThreshold(tau)
-        tree = RegressionTree(split)
+
+        Q_l_test, Q_r_test = self.splitPoints2(Q, theta)
+        np.testing.assert_equal(sorted(Q_l), sorted(Q_l_test), err_msg=str(sorted(Q_l)) + " " + str(sorted(Q_l_test)) + " " + str(sorted(Q_r)) + " " + str(sorted(Q_r_test)))
+        np.testing.assert_equal(sorted(Q_r), sorted(Q_r_test), err_msg=str(sorted(Q_l)) + " " + str(sorted(Q_l_test)) + " " + str(sorted(Q_r)) + " " + str(sorted(Q_r_test)))
+        if len(Q_l) * len(Q_r) == 0:
+            if len(Q_l) == 0:
+                print Q_r[0]
+            else:
+                print Q_l[0]
+            return RegressionTree(mu, residuals=Q_l.append(Q_r))
+        # tau = theta.getThreshold() # TODO clean this part
+        # split.setThreshold(tau)
+
+        tree = RegressionTree(theta)
         if depth > 1:
             tree.leftTree = self.fitNode(depth-1, Q_l, mu_theta_l)
             tree.rightTree = self.fitNode(depth-1, Q_r, mu_theta_r)
@@ -162,9 +179,15 @@ class FaceDetectorFactory:
     # class NodeBuilder:
     #     def __init__(factory)
     #         self.factory = factory
+    def splitPoints2(self, Q, theta):
+        tau, u, v = theta.tuple()
+        left, right = [], []
+        for i in Q:
+            left.append(i) if theta.eval(self.I[self.pi[i]], (self.meanShape, self.shapeEstimates[i], self.similarityTransforms[i])) == 1 else right.append(i)
+        return left, right
 
     def splitPoints(self, Q, theta):
-        thresholds = [theta.eval(self.I[self.pi[i]], (self.meanShape, self.shapeEstimates[i], self.similarityTransforms[i])) for i in Q] # TODO apparently don't need self.imageAdapters[self.pi[i]], don't remember
+        thresholds = [theta.evalDifference(self.I[self.pi[i]], (self.meanShape, self.shapeEstimates[i], self.similarityTransforms[i])) for i in Q] # TODO apparently don't need self.imageAdapters[self.pi[i]], don't remember
         total = np.array(sorted(zip(thresholds,Q))) # increasing # TODO rough, possibly inefficient. could just get the two threshold elements
         cutoff = random.randint(1, len(Q)-1) # includes len(Q)-1; cutoff includes that element and up, so each side always has at least one element
         # self.tau = (total[cutoff-1][0] + total[cutoff][0])/2 # TODO should be changed
@@ -193,24 +216,31 @@ class FaceDetectorFactory:
         val = len(Q_l) * np.linalg.norm(mu_theta_l) + len(Q_r) * np.linalg.norm(mu_theta_r)
         return val, (Q_l, Q_r, mu_theta_l, mu_theta_r, theta)
 
+    @profile(print_stats=20, dump_stats=True)
     def manufacture(self, fd):
+        mark("Loading data set")
         self.I, self.shapes = loadDataSet(self.n, self.basePath)
+        mark("Generating training data")
         self.generateTrainingData()
         strongRegressors = []
         evaluatedRegressor = [[] for i in range(self.N)]
         for t in range(self.T):
             strongRegressors.append([])
+            mark("Sampling pixels")
             self.sampler = Sampler(K=self.K, S=self.S, P=self.P, F=self.F) # TODO
             x,y,w,h = self.meanRectangle
             # self.sampler.samplePixels(*self.meanRectangle)
             self.sampler.samplePixels(x,y,x+w,y+h)
             meanDelta = np.mean(self.shapeDeltas, axis=0)
             strongRegressors[t] = StrongRegressor(meanDelta)
+            strongRegressors[t].setLearningRate(self.lr)
+            mark("Calculating similarity transforms")
             # calculateSimilarityTransforms()
             for i in range(self.N):
                 self.similarityTransforms[i] = calculateSimilarityTransform(self.meanShape, self.shapeEstimates[i])
-            updatedShape = [[] for i in range(self.N)]
+
             for k in range(self.K):
+                mark("Fitting weak regressor %d of %d" % ((k+1), (self.K+1)))
                 for i in range(self.N):
                     if k == 0:
                         evaluatedRegressor[i] = np.copy(meanDelta)
@@ -219,14 +249,27 @@ class FaceDetectorFactory:
                         # evaluatedRegressor[i].applyRegressionTree(strongRegressors[t].weakRegressors[k-1])
                     self.residuals[i] = renormalize(self.shapeDeltas[i] - evaluatedRegressor[i], self.imageAdapters[self.pi[i]])
                 tree = self.fitRegressionTree()
+                # for i in range(self.n):
+                #     prediction = fd.predict(I[i])
+                #     im = markImage(I[i], prediction)
+                #     im = markImage(im, shapes[i])
+                #     displayImage(im)
                 strongRegressors[t].add(tree)
+                for i in range(self.n):
+                    prediction = strongRegressors[t].eval(self.I[i], (self.meanShape, self.shapeEstimates[i], self.similarityTransforms[i]), self.imageAdapters[i])
+                    im = markImage(self.I[i], prediction)
+                    im = markImage(im, self.shapes[i])
+                    displayImage(im)
             if t < self.T:
+                mark("Updating shape estimates")
                 # updateShapes(t)
                 for i in range(self.N):
                     self.shapeEstimates[i] += evaluatedRegressor[i]
                     self.shapeDeltas[i] = self.shapes[self.pi[i]] - self.shapeEstimates[i]
+        mark("Saving learned face detector")
         fd.create(self.meanShape, strongRegressors)
         save(fd, self.tempPath + 'face_detector')
+        mark("Done training")
 
 class FaceDetector:
     meanRectangle = []
@@ -240,14 +283,14 @@ class FaceDetector:
         fd = load(path)
         self.create(fd.meanShape, fd.strongRegressors)
 
-    def detectFace(self, image, meanShape=None):
+    def predict(self, image, meanShape=None):
         transform = (1, np.identity(2), 0) # identity transform
-        shapeRectangle, im = detectFaceRectangle(image)
+        shapeRectangle = detectFaceRectangle(image)
         adjustment = adjustToFit(self.meanShape, shapeRectangle, adapterOnly=True)
         predictedShape = adjustToFit(self.meanShape, shapeRectangle)
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
-                delta = strongRegressor.eval(image, self.meanShape, predictedShape, transform, adjustment)
+                delta = strongRegressor.eval(image, (self.meanShape, predictedShape, transform), adjustment)
                 predictedShape += delta # normalize(delta, adjustment)
                 transform = calculateSimilarityTransform(self.meanShape, predictedShape)
         return predictedShape # adjustPoints(predictedShape, adjustment)
@@ -264,12 +307,11 @@ class FaceDetector:
         adjustment = adjustToFit(self.meanShape, rect, adapterOnly=True)
         splits = []
         for weakRegressor in self.strongRegressors[0].weakRegressors: # TODO all strongRegressors
-            print weakRegressor.node.tup
             splits += weakRegressor.splits()
         count = len(splits)
         for i in range(count):
             split = splits[i]
-            threshold, p0, p1 = split.tup
+            threshold, p0, p1 = split.tuple()
             pair = np.array([p0,p1])
             adjustedPair = adjustPoints(pair, adjustment)
             adjustedPair = [[int(s) for s in p] for p in adjustedPair]
@@ -282,16 +324,20 @@ class FaceDetector:
 class Node:
     def __init__(self, pair):
         self.u, self.v = pair
-        self.tup = (0, self.u, self.v)
 
     def setThreshold(self, tau):
         self.tau = tau
-        self.tup = (tau, self.u, self.v)
 
-    def split(self, image):
-        return 1 if applySplit(node, image) > tau else 0
+    def getThreshold(self):
+        return self.tau
 
-    def eval(self, image, transformationData):
+    def tuple(self):
+        return self.tau, self.u, self.v
+
+    # def split(self, image):
+    #     return 1 if applySplit(node, image) > self.tau else 0
+
+    def evalDifference(self, image, transformationData):
         meanShape, shapeEstimate, similarityTransform = transformationData
         u = self.u
         v = self.v
@@ -302,29 +348,47 @@ class Node:
         im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
         return im_u - im_v
 
+    def eval(self, image, transformationData):
+        return 1 if self.evalDifference(image, transformationData) > self.tau else 0
+
+
 if __name__ == '__main__':
-    n = 5
-    R = 2
     basePath = '/Users/frieda/Downloads/'
+    # settings = {
+    #     "lr": 0.4,
+    #     "T": 3,
+    #     "K": 5,
+    #     "F": 5,
+    #     "P": 400,
+    #     "S": 20,
+    #     "n": 20,
+    #     "R": 4,
+    #     # "N": n*R,
+    #     "basePath": basePath, # TODO '~' should work instead
+    #     "tempPath": 'temp_',
+    #     "testPath": 'test_', # not used
+    #     "lmbda": 0.05,
+    #     "PRINT_TIME_STATS": True
+    # } # a dict of parameters
+    n = 10
     settings = {
-        "lr": 0.4,
+        "lr": 1,
         "T": 1,
-        "K": 2,
-        "F": 5,
+        "K": 1,
+        "F": 20,
         "P": 400,
         "S": 20,
         "n": n,
-        "R": R,
-        # "N": n*R,
+        "R": 1,
         "basePath": basePath, # TODO '~' should work instead
         "tempPath": 'temp_',
         "testPath": 'test_', # not used
         "lmbda": 0.05,
         "PRINT_TIME_STATS": True
-    } # a dict of parameters
+    }
     fd = FaceDetector()
     fd.train(settings)
-    fd.load('temp_face_detector')
-    fd.visualize(basePath)
+    # fd.load('temp_face_detector')
+    # fd.visualize(basePath)
     # fd.test()
     # fd.predict('https://link_to_image')
