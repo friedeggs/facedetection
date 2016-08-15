@@ -17,37 +17,17 @@ class StrongRegressor:
         return res
 
 class RegressionTree:
-    # # class methods
-    # def fitRegressionTree(trainingData):
-    #
-    #
-    # def fitNode():
-
-
-    # instance methods
-    def __init__(self, node, leftTree=None, rightTree=None, residuals=None):
+    def __init__(self, node, leftTree=None, rightTree=None):
         self.node = node
         self.leftTree = leftTree
         self.rightTree = rightTree
-        self.residuals = residuals
-
     def eval(self, image, estimate): # warp based on shapeEstimate which is based off result from StrongRegressor
         if self.isLeaf(): # leaf
-            print self.residuals
             return self.node
-        # estimate = (meanShape, shapeEstimate, shapeTransform, adjustment) # TODO clean
         if self.node.eval(image, estimate) == 1:
             return self.leftTree.eval(image, estimate)
         else:
             return self.rightTree.eval(image, estimate)
-    # def evalResiduals(self, image, estimate): # warp based on shapeEstimate which is based off result from StrongRegressor
-    #     if self.isLeaf(): # leaf
-    #         return self.residuals
-    #     # estimate = (meanShape, shapeEstimate, shapeTransform, adjustment) # TODO clean
-    #     if self.node.eval(image, estimate) == 1:
-    #         return self.leftTree.eval(image, estimate)
-    #     else:
-    #         return self.rightTree.eval(image, estimate)
     def leaves(self):
         if self.isLeaf():
             return self.node[:5]
