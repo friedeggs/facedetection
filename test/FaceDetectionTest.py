@@ -1,9 +1,11 @@
 import sys
 sys.path.append('..')
 
-from FaceDetection import FaceDetector, loadDataSet
-from HelperFunctions import markImage, displayImage
+from FaceDetection import FaceDetector, loadDataSet, overlap, detectFaceRectangle, rectangle
+from HelperFunctions import markImage, displayImage, drawRect
 import numpy as np
+
+import unittest, nose
 
 basePath = '/Users/frieda/Downloads/'
 n = 10
@@ -22,6 +24,34 @@ settings = {
     "lmbda": 0.05,
     "PRINT_TIME_STATS": True
 } # a dict of parameters
+
+def testOverlap():
+    rect1 = (1, 5, 8, 10)
+    rect2 = (2, 6, 4, 5)
+    overlap1 = overlap(rect1, rect1)
+    overlap2 = overlap(rect1, rect2)
+    nose.tools.assert_equal(1, overlap1)
+    nose.tools.assert_equal(0.25, overlap2)
+
+def testFaceDetection():
+    n = 20
+    I, shapes = loadDataSet(n, basePath)
+    for i in range(n):
+        print i
+        rect = detectFaceRectangle(I[i], shapes[i])
+        rect3 = rectangle(shapes[i])
+        rect2 = overlap(rect3, rect, test=True)
+        x,y,W,H = rect2
+        x1,y1,w1,h1 = rect3
+        val2 = 1.*W*H/(w1*h1)
+        print val2
+        val = overlap(rect3, rect)
+        np.testing.assert_almost_equal(val, val2)
+        im = drawRect(I[i], rect, color=0)
+        im = drawRect(im, rect3, color=155)
+        im = drawRect(im, rect2)
+
+        displayImage(im)
 
 def testChooseSplit():
     from FaceDetection import FaceDetectorFactory
@@ -55,18 +85,20 @@ def testChooseSplit():
                     self.applyRegressionTree(evaluatedRegressor[i], strongRegressors[t].weakRegressors[k-1], i)
                     # evaluatedRegressor[i].applyRegressionTree(strongRegressors[t].weakRegressors[k-1])
                 self.residuals[i] = renormalize(self.shapeDeltas[i] - evaluatedRegressor[i], self.imageAdapters[self.pi[i]])
-            
+
             tree = self.fitRegressionTree()
 
 if __name__ == '__main__':
-    fd = FaceDetector()
-    fd.train(settings)
-    I, shapes = loadDataSet(n, basePath)
-    for i in range(n):
-        prediction = fd.predict(I[i])
-        im = markImage(I[i], prediction)
-        im = markImage(im, shapes[i])
-        displayImage(im)
-        # np.testing.assert_almost_equal(fd.predict(I[i]), shapes[i])
+    # fd = FaceDetector()
+    # fd.train(settings)
+    # I, shapes = loadDataSet(n, basePath)
+    # for i in range(n):
+    #     prediction = fd.predict(I[i])
+    #     im = markImage(I[i], prediction)
+    #     im = markImage(im, shapes[i])
+    #     displayImage(im)
+    #     # np.testing.assert_almost_equal(fd.predict(I[i]), shapes[i])
+    # testOverlap()
+    testFaceDetection()
 
 

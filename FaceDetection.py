@@ -25,7 +25,23 @@ cascadePaths = [
     ]
 faceCascades = [cv2.CascadeClassifier(os.path.join(curdir, path)) for path in cascadePaths]
 
-def detectFaceRectangle(image, ind=0): # TODO test
+def overlap(rect1, rect2, test=False):
+    x1,y1,w1,h1 = rect1
+    x2,y2,w2,h2 = rect2
+    x = max(x1,x2)
+    y = max(y1,y2)
+    X = min(x1+w1,x2+w2)
+    Y = min(y1+h1,y2+h2)
+    if test:
+        return (x,y,X-x,Y-y)
+    else:
+        return 1.*(X-x)*(Y-y)/(w1*h1)
+
+def detectFaceRectangle(image, shape=None, ind=0): # TODO test
+    if shape is None:
+        default = meanRectangle
+    else:
+        default = rectangle(shape)
     width, height = np.shape(image)
     try:
         im = image
@@ -45,17 +61,18 @@ def detectFaceRectangle(image, ind=0): # TODO test
                         minNeighbors=3,
                         minSize=(width/3, height/3))
                         # minSize = (10,10))
-            # print faces
         if len(faces) == 0:
-            return meanRectangle
+            return default
         index = np.argmax(faces[:,2]) # argmax of width # and height
         faceRect = faces[index]
         faceRect = adjustRect(faceRect) # does not affect original shapeRectangle
+        if shape is not None and overlap(default, faceRect) < 0.6:
+            return default
         return faceRect # TODO or return largest one?
     except():
         e = sys.exc_info()[0]
         print(e)
-        return FaceDetector.meanRectangle
+        return default
 
 def adjustToFit(shape, shapeRectangle, adapterOnly=False): # shapeRectangle is given as (x,y,w,h)
     x,y,w,h = shapeRectangle
@@ -96,9 +113,33 @@ def loadDataSet(n, basePath):
         with open(filePath, 'r') as f:
             imagePath = f.readline().rstrip('\n').rstrip('\r')
             shapes[i] = np.array([[float(s) for s in line.rstrip('\n').rstrip('\r').split(',')] for line in f.readlines()])
-            # shapes[i] = coarsenShape(shapes[i])
+            # shapes[i] = keypoints(shapes[i])
             I[i] = cv2.imread(basePath + 'images/' + imagePath + '.jpg', 0)# cv2.IMREAD_GRAYSCALE
     return I, shapes
+
+def keypoints(shape):
+    points = [
+        0, 10, 20, 30, 40, # face
+        45, 49, 54, # nose l-to-r
+        58, 70, # mouth corners l-to-r
+        65, 93, 106, 78, # mouth middles top to bottom
+        119, 124, 129, 133, # left eye
+        139, 144, 149, 153, # right eye
+        160, 164, 168, # right eyebrow
+        180, 184, 188 # left eyebrow
+    ]
+    shape = np.array([shape[i] for i in points])
+    return shape
+
+def coarsenShape(shape):
+    shape = np.concatenate((shape[:41][0::4], # face shape
+                           shape[41:58][0::2], # nose
+                           shape[58:72][0::2], # mouth
+                           shape[72:88][0::3], # bottom part of mouth
+                           shape[87:114][0::4], # inner lips of mouth
+                           shape[114:154][0::3], # eyes
+                           shape[154:][0::4])) # eyebrows
+    return shape
 
 class FaceDetectorFactory:
     def __init__(self, settings):
@@ -124,7 +165,7 @@ class FaceDetectorFactory:
         self.meanRectangle = rectangle(self.meanShape) # TODO
         meanRectangle = self.meanRectangle
         for i in range(self.n):
-            self.rectangles[i] = detectFaceRectangle(self.I[i])
+            self.rectangles[i] = detectFaceRectangle(self.I[i], shape=self.shapes[i])
             self.imageAdapters[i] = adjustToFit(self.meanShape, self.rectangles[i], adapterOnly=True) # TODO same code is run in here and shapeEstimates[i*R+j] line
         for i in range(self.n):
             sample = random.sample(range(i) + range(i+1, self.n), self.R)
@@ -341,13 +382,13 @@ if __name__ == '__main__':
     basePath = '/Users/frieda/Downloads/'
     settings = {
         "lr": 0.1,
-        "T": 3,
-        "K": 10,
+        "T": 1,
+        "K": 1,
         "F": 5,
         "P": 400,
         "S": 20,
-        "n": 50,
-        "R": 5,
+        "n": 10,
+        "R": 1,
         "basePath": basePath, # TODO '~' should work instead
         "tempPath": 'temp_',
         "testPath": 'test_', # not used
@@ -358,5 +399,5 @@ if __name__ == '__main__':
     fd.train(settings, test=True)
     # fd.load('temp_face_detector')
     fd.visualize(basePath)
-    fd.test(20, basePath)
+    # fd.test(20, basePath)
     # fd.predict('https://link_to_image')
