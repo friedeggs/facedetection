@@ -6,8 +6,9 @@ from HelperFunctions import markImage, displayImage, drawRect
 import numpy as np
 
 import unittest, nose
+import os
 
-basePath = '/Users/frieda/Downloads/'
+basePath = os.path.expanduser('~/Downloads/')
 n = 10
 settings = {
     "lr": 1,
@@ -18,12 +19,12 @@ settings = {
     "S": 20,
     "n": n,
     "R": 1,
-    "basePath": basePath, # TODO '~' should work instead
+    "basePath": basePath,
     "tempPath": 'temp_',
-    "testPath": 'test_', # not used
+    "testPath": 'test_',
     "lmbda": 0.05,
     "PRINT_TIME_STATS": True
-} # a dict of parameters
+}
 
 def testOverlap():
     rect1 = (1, 5, 8, 10)
@@ -65,15 +66,13 @@ def testChooseSplit():
     for t in range(self.T):
         strongRegressors.append([])
         mark("Sampling pixels")
-        self.sampler = Sampler(K=self.K, S=self.S, P=self.P, F=self.F) # TODO
+        self.sampler = Sampler(K=self.K, S=self.S, P=self.P, F=self.F)
         x,y,w,h = self.meanRectangle
-        # self.sampler.samplePixels(*self.meanRectangle)
         self.sampler.samplePixels(x,y,x+w,y+h)
         meanDelta = np.mean(self.shapeDeltas, axis=0)
         strongRegressors[t] = StrongRegressor(meanDelta)
         strongRegressors[t].setLearningRate(self.lr)
         mark("Calculating similarity transforms")
-        # calculateSimilarityTransforms()
         for i in range(self.N):
             self.similarityTransforms[i] = calculateSimilarityTransform(self.meanShape, self.shapeEstimates[i])
         for k in range(self.K):
@@ -83,7 +82,6 @@ def testChooseSplit():
                     evaluatedRegressor[i] = np.copy(meanDelta)
                 else:
                     self.applyRegressionTree(evaluatedRegressor[i], strongRegressors[t].weakRegressors[k-1], i)
-                    # evaluatedRegressor[i].applyRegressionTree(strongRegressors[t].weakRegressors[k-1])
                 self.residuals[i] = renormalize(self.shapeDeltas[i] - evaluatedRegressor[i], self.imageAdapters[self.pi[i]])
 
             tree = self.fitRegressionTree()

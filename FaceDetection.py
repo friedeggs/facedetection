@@ -12,6 +12,7 @@ import unittest, nose
 import os
 curdir=os.path.dirname(__file__)
 
+meanRectangle = []
 cascadePaths = [
     'data/lbpcascade_frontalface.xml',
     'data/lbpcascade_profileface.xml',
@@ -38,47 +39,36 @@ def overlap(rect1, rect2, test=False):
         return 1.*(X-x)*(Y-y)/(w1*h1)
 
 def detectFaceRectangle(image, shape=None, ind=0): # TODO test
-    if shape is None:
-        default = meanRectangle
-    else:
-        default = rectangle(shape)
+    default = meanRectangle if shape is None else rectangle(shape)
     width, height = np.shape(image)
-    try:
-        im = image
-        faces = faceCascades[0].detectMultiScale(
-                    image, # should be grayscale - gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                    scaleFactor=1.1,
-                    minNeighbors=2,
-                    minSize=(width/4, height/4))
-                    # minSize = (10,10))
-        # print faces
-        index = 0
-        while len(faces) == 0 and index+1 < len(faceCascades):
-            index += 1
-            faces = faceCascades[index].detectMultiScale(
-                        image, # should be grayscale - gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                        scaleFactor=1.05,
-                        minNeighbors=3,
-                        minSize=(width/3, height/3))
-                        # minSize = (10,10))
-        if len(faces) == 0:
-            return default
-        index = np.argmax(faces[:,2]) # argmax of width # and height
-        faceRect = faces[index]
-        faceRect = adjustRect(faceRect) # does not affect original shapeRectangle
-        if shape is not None and overlap(default, faceRect) < 0.6:
-            return default
-        return faceRect # TODO or return largest one?
-    except():
-        e = sys.exc_info()[0]
-        print(e)
+    im = image
+    faces = faceCascades[0].detectMultiScale(
+                image, # should be grayscale - gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                scaleFactor=1.1,
+                minNeighbors=2,
+                minSize=(width/4, height/4))
+    index = 0
+    while len(faces) == 0 and index+1 < len(faceCascades):
+        index += 1
+        faces = faceCascades[index].detectMultiScale(
+                    image, # relaxed conditions
+                    scaleFactor=1.05,
+                    minNeighbors=3,
+                    minSize=(width/3, height/3))
+    if len(faces) == 0:
         return default
+    index = np.argmax(faces[:,2]) # argmax of width # and height
+    faceRect = faces[index]
+    faceRect = adjustRect(faceRect) # does not affect original shapeRectangle
+    if shape is not None and overlap(default, faceRect) < 0.6:
+        return default
+    return faceRect
 
 def adjustToFit(shape, shapeRectangle, adapterOnly=False): # shapeRectangle is given as (x,y,w,h)
     x,y,w,h = shapeRectangle
     x = np.array([x,y])
     off = np.array([w,h])
-    X1 = np.min(shape, 0)# .astype(int) TODO why astype int?
+    X1 = np.min(shape, 0).astype(int)
     Y1 = np.max(shape, 0).astype(int)
     scale = 1.*off/(Y1 - X1)
     offset = X1 * scale - x
@@ -88,7 +78,7 @@ def adjustToFit(shape, shapeRectangle, adapterOnly=False): # shapeRectangle is g
         return (scale, offset)
     return shape
 
-def adjustRect(rect): # TODO extremely arbitrary even if it depends on opencv's output
+def adjustRect(rect): # TODO extremely arbitrary
     x,y,w,h = rect
     cx = x + w/2
     cy = y + h/2
@@ -101,7 +91,7 @@ def adjustRect(rect): # TODO extremely arbitrary even if it depends on opencv's 
 def rectangle(shape):
     x1,y1 = np.min(shape, 0).astype(int)
     x2,y2 = np.max(shape, 0).astype(int)
-    return (x1,y1,x2-x1,y2-y1) # TODO
+    return (x1,y1,x2-x1,y2-y1)
 
 def loadDataSet(n, basePath):
     ''' Load images and shapes '''
@@ -114,7 +104,7 @@ def loadDataSet(n, basePath):
             imagePath = f.readline().rstrip('\n').rstrip('\r')
             shapes[i] = np.array([[float(s) for s in line.rstrip('\n').rstrip('\r').split(',')] for line in f.readlines()])
             shapes[i] = keypoints(shapes[i])
-            I[i] = cv2.imread(basePath + 'images/' + imagePath + '.jpg', 0)# cv2.IMREAD_GRAYSCALE
+            I[i] = cv2.imread(basePath + 'images/' + imagePath + '.jpg', 0) # cv2.IMREAD_GRAYSCALE
     return I, shapes
 
 def keypoints(shape):
@@ -162,16 +152,16 @@ class FaceDetectorFactory:
         global meanRectangle
         self.pi = np.repeat(np.arange(self.N), self.R)
         self.meanShape = np.mean(self.shapes, 0)
-        self.meanRectangle = rectangle(self.meanShape) # TODO
+        self.meanRectangle = rectangle(self.meanShape)
         meanRectangle = self.meanRectangle
         for i in range(self.n):
             self.rectangles[i] = detectFaceRectangle(self.I[i], shape=self.shapes[i])
-            self.imageAdapters[i] = adjustToFit(self.meanShape, self.rectangles[i], adapterOnly=True) # TODO same code is run in here and shapeEstimates[i*R+j] line
+            self.imageAdapters[i] = adjustToFit(self.meanShape, self.rectangles[i], adapterOnly=True)
         for i in range(self.n):
             sample = random.sample(range(i) + range(i+1, self.n), self.R)
             for j in range(self.R):
                 self.shapeEstimates[i*self.R+j] = adjustToFit(self.shapes[sample[j]], self.rectangles[i])
-            self.shapeEstimates[i*self.R] = adjustToFit(self.meanShape, self.rectangles[i]) # TODO testing purposes
+            # self.shapeEstimates[i*self.R] = adjustToFit(self.meanShape, self.rectangles[i]) # TODO testing purposes
         for i in range(self.N):
             self.shapeDeltas[i] = self.shapes[self.pi[i]] - self.shapeEstimates[i]
 
@@ -215,14 +205,13 @@ class FaceDetectorFactory:
         return left, right
 
     def chooseSplit(self, Q, theta):
-        thresholds = [theta.evalDifference(self.I[self.pi[i]], (self.meanShape, self.shapeEstimates[i], self.similarityTransforms[i])) for i in Q] # TODO apparently don't need self.imageAdapters[self.pi[i]], don't remember
-        total = np.array(sorted(zip(thresholds,Q))) # increasing # TODO rough, possibly inefficient. could just get the two threshold elements
-        cutoff = random.randint(1, len(Q)-1) # includes len(Q)-1; cutoff includes that element and up, so each side always has at least one element
-        # self.tau = (total[cutoff-1][0] + total[cutoff][0])/2 # TODO should be changed
-        tau = (total[cutoff-1][0] + total[cutoff][0])/2 # TODO should be changed
+        thresholds = [theta.evalDifference(self.I[self.pi[i]], (self.meanShape, self.shapeEstimates[i], self.similarityTransforms[i])) for i in Q]
+        total = np.array(sorted(zip(thresholds,Q))) # increasing
+        cutoff = random.randint(1, len(Q)-1)
+        tau = (total[cutoff-1][0] + total[cutoff][0])/2
         theta.setThreshold(tau)
-        while cutoff < len(Q) and total[cutoff-1][0] == total[cutoff][0]: # TODO how should random cutoff be picked in the case of duplicated thresholds?
-            cutoff += 1 # could potentially get 0 in this case!
+        while cutoff < len(Q) and total[cutoff-1][0] == total[cutoff][0]:
+            cutoff += 1
         left = total[cutoff:][:,1] # includes cutoff
         right = total[:cutoff][:,1]
         return left, right, theta
@@ -235,10 +224,7 @@ class FaceDetectorFactory:
             mu_theta_r = np.mean([self.residuals[i] for i in Q_r], 0)
         else:
             mu_theta_l = np.mean([self.residuals[i] for i in Q_l], 0)
-            if len(Q_r) == 0:
-                mu_theta_r = 0
-            else:
-                mu_theta_r = (len(Q)*mu - len(Q_l) * mu_theta_l) / len(Q_r)
+            mu_theta_r = (len(Q)*mu - len(Q_l) * mu_theta_l) / len(Q_r) if len(Q_r) > 0 else 0
         val = len(Q_l) * np.linalg.norm(mu_theta_l) + len(Q_r) * np.linalg.norm(mu_theta_r)
         return val, (Q_l, Q_r, mu_theta_l, mu_theta_r, theta)
 
@@ -251,38 +237,46 @@ class FaceDetectorFactory:
         fd.meanShape = self.meanShape
         fd.strongRegressors = []
         evaluatedRegressor = [[] for i in range(self.N)]
-        for t in range(self.T):
-            fd.strongRegressors.append([])
-            mark("Sampling pixels")
-            self.sampler = Sampler(K=self.K, S=self.S, P=self.P, F=self.F)
-            x,y,w,h = self.meanRectangle
-            # self.sampler.samplePixels(*self.meanRectangle)
-            self.sampler.samplePixels(x,y,x+w,y+h)
-            meanDelta = np.mean(self.shapeDeltas, axis=0)
-            fd.strongRegressors[t] = StrongRegressor(meanDelta)
-            fd.strongRegressors[t].setLearningRate(self.lr)
-            mark("Calculating similarity transforms")
-            for i in range(self.N):
-                self.similarityTransforms[i] = calculateSimilarityTransform(self.meanShape, self.shapeEstimates[i])
-            for k in range(self.K):
-                mark("Fitting tree %d of %d for strong regressor %d of %d" % ((k+1), self.K, (t+1), self.T))
+        t, k = 0, 0
+        self.sampler = Sampler(self.P, self.K*self.S*(2**self.F))
+        try:
+            for t in range(self.T):
+                fd.strongRegressors.append([])
+                mark("Sampling pixels")
+                x,y,w,h = self.meanRectangle
+                # self.sampler.samplePixels(*self.meanRectangle)
+                self.sampler.samplePixels(x,y,x+w,y+h)
+                meanDelta = np.mean(self.shapeDeltas, axis=0)
+                fd.strongRegressors[t] = StrongRegressor(meanDelta)
+                fd.strongRegressors[t].setLearningRate(self.lr)
+                mark("Calculating similarity transforms")
                 for i in range(self.N):
-                    if k == 0:
-                        evaluatedRegressor[i] = np.copy(meanDelta)
-                    else:
-                        self.applyRegressionTree(evaluatedRegressor[i], fd.strongRegressors[t].weakRegressors[k-1], i)
-                        # evaluatedRegressor[i].applyRegressionTree(strongRegressors[t].weakRegressors[k-1])
-                    self.residuals[i] = renormalize(self.shapeDeltas[i] - evaluatedRegressor[i], self.imageAdapters[self.pi[i]])
-                tree = self.fitRegressionTree()
-                fd.strongRegressors[t].add(tree)
-                if test and (k+1) % 25 == 0:
-                    fd.test(20, self.basePath, filePath='weak_regressors_', display=False)
-            if t < self.T:
-                mark("Updating shape estimates")
-                for i in range(self.N):
-                    self.shapeEstimates[i] += evaluatedRegressor[i]
-                    self.shapeDeltas[i] = self.shapes[self.pi[i]] - self.shapeEstimates[i]
-                fd.test(20, self.basePath, filePath='strong_regressor_' + str(t+1) + '_image_')
+                    self.similarityTransforms[i] = calculateSimilarityTransform(self.meanShape, self.shapeEstimates[i])
+                for k in range(self.K):
+                    mark("Fitting tree %d of %d for strong regressor %d of %d" % ((k+1), self.K, (t+1), self.T))
+                    for i in range(self.N):
+                        if k == 0:
+                            evaluatedRegressor[i] = np.copy(meanDelta)
+                        else:
+                            self.applyRegressionTree(evaluatedRegressor[i], fd.strongRegressors[t].weakRegressors[k-1], i)
+                        self.residuals[i] = renormalize(self.shapeDeltas[i] - evaluatedRegressor[i], self.imageAdapters[self.pi[i]])
+                    tree = self.fitRegressionTree()
+                    fd.strongRegressors[t].add(tree)
+                    if test and (k+1) % 25 == 0:
+                        fd.test(20, self.basePath, filePath='weak_regressors_', display=False)
+                if t+1 < self.T:
+                    mark("Updating shape estimates")
+                    for i in range(self.N):
+                        self.shapeEstimates[i] += evaluatedRegressor[i]
+                        self.shapeDeltas[i] = self.shapes[self.pi[i]] - self.shapeEstimates[i]
+                    fd.test(20, self.basePath, filePath='strong_regressor_' + str(t+1) + '_image_')
+        finally:
+            if t+1 < self.T or k+1 < self.K:
+                print "Training stopped early. Work in progress saved."
+                save(fd, self.tempPath + 'saved_face_detector')
+                self.I = None
+                self.shapes = None
+                save(self, self.tempPath + 'saved_face_detector_factory')
         mark("Saving learned face detector")
         save(fd, self.tempPath + 'face_detector')
         mark("Done training")
@@ -307,9 +301,9 @@ class FaceDetector:
         for strongRegressor in self.strongRegressors:
             if strongRegressor:
                 delta = strongRegressor.eval(image, (self.meanShape, predictedShape, transform), adjustment)
-                predictedShape += delta # normalize(delta, adjustment)
+                predictedShape += delta
                 transform = calculateSimilarityTransform(self.meanShape, predictedShape)
-        return predictedShape # adjustPoints(predictedShape, adjustment)
+        return predictedShape
 
     def train(self, settings, test=False):
         faceDetectorFactory = FaceDetectorFactory(settings)
@@ -322,8 +316,9 @@ class FaceDetector:
         shape = adjustToFit(self.meanShape, rect)
         adjustment = adjustToFit(self.meanShape, rect, adapterOnly=True)
         splits = []
-        for weakRegressor in self.strongRegressors[0].weakRegressors: # TODO all strongRegressors
-            splits += weakRegressor.splits()
+        for strongRegressor in self.strongRegressors:
+            for weakRegressor in strongRegressor.weakRegressors:
+                splits += weakRegressor.splits()
         count = len(splits)
         for i in range(count):
             split = splits[i]
@@ -370,7 +365,7 @@ class Node:
         u1 = warpPoint(u, meanShape, shapeEstimate, similarityTransform)
         v1 = warpPoint(v, meanShape, shapeEstimate, similarityTransform)
         w, h = np.shape(image)
-        im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0 # TODO is this logically valid?
+        im_u = int(image[u1[1],u1[0]]) if u1[1] >= 0 and u1[1] < w and u1[0] >= 0 and u1[0] < h else 0
         im_v = int(image[v1[1],v1[0]]) if v1[1] >= 0 and v1[1] < w and v1[0] >= 0 and v1[0] < h else 0
         return im_u - im_v
 
@@ -379,17 +374,17 @@ class Node:
 
 
 if __name__ == '__main__':
-    basePath = '/Users/frieda/Downloads/'
+    basePath = os.path.expanduser('~/Downloads/')
     settings = {
-        "lr": 0.1,
+        "lr": 0.4,
         "T": 10,
-        "K": 10,
+        "K": 50,
         "F": 5,
         "P": 400,
-        "S": 20,
-        "n": 20,
-        "R": 1,
-        "basePath": basePath, # TODO '~' should work instead
+        "S": 40,
+        "n": 40,
+        "R": 4,
+        "basePath": basePath,
         "tempPath": 'temp_',
         "testPath": 'test_', # not used
         "lmbda": 0.05,
@@ -397,7 +392,7 @@ if __name__ == '__main__':
     } # a dict of parameters
     fd = FaceDetector()
     fd.train(settings, test=True)
-    # fd.load('temp_face_detector')
+    # fd.load('temp_saved_face_detector')
     fd.visualize(basePath)
     # fd.test(20, basePath)
     # fd.predict('https://link_to_image')

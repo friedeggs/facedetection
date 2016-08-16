@@ -3,24 +3,20 @@ import random
 from MathFunctions import prior, adjustPoints
 
 class Sampler:
-    def __init__(self, K, S, P, F):
-        self.K = K
-        self.S = S
-        self.P = P
-        self.F = F
+    def __init__(self, numPoints, numSamples):
+        self.numPoints = numPoints
+        self.numSamples = numSamples
 
     def samplePixels(self, meanWidthX, meanHeightX, meanWidthY, meanHeightY):
+        random.seed()
         height = meanHeightY-meanHeightX
-        points = [(random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX-height/3, meanHeightY+height/7)) for i in range(self.P)] # TODO confirm this adjustment
+        points = [(random.randint(meanWidthX, meanWidthY), random.randint(meanHeightX-height/3, meanHeightY+height/7)) for i in range(self.numPoints)] # TODO so arbitrary
         pairs = [(points[i], points[j]) for i in range(len(points)) for j in range(len(points)) if i != j]
         priorWeights = [prior(p[0], p[1]) for p in pairs]
         total = sum(priorWeights)
         priorWeights = [x / total for x in priorWeights]
         self.samplePairs = pairs
-        if self.F <= 5:
-            self.presampledPairs = np.random.choice(len(self.samplePairs), self.K*self.S*(2**self.F), p=priorWeights)
-        else:
-            self.presampledPairs = np.random.choice(len(self.samplePairs), 20*20*10, p=priorWeights)
+        self.presampledPairs = np.random.choice(len(self.samplePairs), self.numSamples, p=priorWeights)
         self.counter = 0
 
     def samplePair(self):

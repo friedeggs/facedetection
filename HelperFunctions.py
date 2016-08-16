@@ -11,6 +11,7 @@ random.seed()
 startTime = time.time()
 lastTime = startTime
 resultsPath = 'results/'
+logPath = 'log/'
 window = cv2.namedWindow('Face Detector', cv2.WINDOW_NORMAL)
 PRINT_TIME_STATS = True
 def setPrintOptions(printTimeStats):
@@ -24,6 +25,10 @@ def load(filename):
 def save(obj, filename):
     f = open(os.path.join(curdir, resultsPath) + filename + '.pkl', 'w')
     pickle.dump(obj, f)
+    f.close()
+def log(str, filename):
+    f = open(os.path.join(curdir, logPath) + filename + '.txt', 'w')
+    f.write(str)
     f.close()
 def output(s):
     print s

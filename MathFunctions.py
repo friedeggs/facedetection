@@ -40,7 +40,7 @@ def closest(node, nodes):
     deltas = nodes - node
     dist_2 = np.einsum('ij,ij->i', deltas, deltas)
     return np.argmin(dist_2)
-def warpPoint(u, X, Y, similarityTransform): # TODO check
+def warpPoint(u, X, Y, similarityTransform):
     S, R, t = similarityTransform # global indexing
     k_u = closest(u, X) # local indexing
     delta_x_u = u - X[k_u]
@@ -48,7 +48,7 @@ def warpPoint(u, X, Y, similarityTransform): # TODO check
     return u1
 def adjustPoints(points, adjustment):
     scale, offset = adjustment
-    return points * scale - offset # TODO should this be offset?
+    return points * scale - offset
 def renormalize(points, adjustment):
     scale, offset = adjustment
     return points / scale
