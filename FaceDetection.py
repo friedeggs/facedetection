@@ -113,7 +113,7 @@ def loadDataSet(n, basePath):
         with open(filePath, 'r') as f:
             imagePath = f.readline().rstrip('\n').rstrip('\r')
             shapes[i] = np.array([[float(s) for s in line.rstrip('\n').rstrip('\r').split(',')] for line in f.readlines()])
-            # shapes[i] = keypoints(shapes[i])
+            shapes[i] = keypoints(shapes[i])
             I[i] = cv2.imread(basePath + 'images/' + imagePath + '.jpg', 0)# cv2.IMREAD_GRAYSCALE
     return I, shapes
 
@@ -121,12 +121,12 @@ def keypoints(shape):
     points = [
         0, 10, 20, 30, 40, # face
         45, 49, 54, # nose l-to-r
-        58, 70, # mouth corners l-to-r
+        58, 100, # mouth corners l-to-r
         65, 93, 106, 78, # mouth middles top to bottom
-        119, 124, 129, 133, # left eye
-        139, 144, 149, 153, # right eye
-        160, 164, 168, # right eyebrow
-        180, 184, 188 # left eyebrow
+        114, 119, 124, 129, # left eye
+        134, 139, 144, 149, # right eye
+        154, 160, 164, 168, # right eyebrow
+        174, 180, 184, 188 # left eyebrow
     ]
     shape = np.array([shape[i] for i in points])
     return shape
@@ -265,7 +265,7 @@ class FaceDetectorFactory:
             for i in range(self.N):
                 self.similarityTransforms[i] = calculateSimilarityTransform(self.meanShape, self.shapeEstimates[i])
             for k in range(self.K):
-                mark("Fitting weak regressor %d of %d" % ((k+1), self.K))
+                mark("Fitting tree %d of %d for strong regressor %d of %d" % ((k+1), self.K, (t+1), self.T))
                 for i in range(self.N):
                     if k == 0:
                         evaluatedRegressor[i] = np.copy(meanDelta)
@@ -382,12 +382,12 @@ if __name__ == '__main__':
     basePath = '/Users/frieda/Downloads/'
     settings = {
         "lr": 0.1,
-        "T": 1,
-        "K": 1,
+        "T": 10,
+        "K": 10,
         "F": 5,
         "P": 400,
         "S": 20,
-        "n": 10,
+        "n": 20,
         "R": 1,
         "basePath": basePath, # TODO '~' should work instead
         "tempPath": 'temp_',

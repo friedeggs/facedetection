@@ -31,7 +31,7 @@ def mark(log):
     global lastTime
     thisTime = time.time()
     if PRINT_TIME_STATS:
-        print '{:<{}s}'.format(log, 40), "\t\t -- Total time elapsed: %9.2fs, Time since last: %9.2f" % ((thisTime - startTime), (thisTime - lastTime))
+        print '{:<{}s}'.format(log, 55), " -- Total time elapsed: %9.2fs, Time since last: %9.2f" % ((thisTime - startTime), (thisTime - lastTime))
     lastTime = thisTime
 def markImage(im, predictedShape, markSize=3, color=255):
     image = im.copy()
@@ -43,7 +43,34 @@ def markImage(im, predictedShape, markSize=3, color=255):
             for j in range(b-markSize,b+markSize):
                 if i < height and j < width and i >= 0 and j >= 0:
                     image[j,i] = color
+    if len(predictedShape) == 30: # keypoints
+        points = [
+            0, 10, 20, 30, 40, # face
+            45, 49, 54, # nose l-to-r
+            58, 70, # mouth corners l-to-r
+            65, 93, 106, 78, # mouth middles top to bottom
+            119, 124, 129, 133, # left eye
+            139, 144, 149, 153, # right eye
+            160, 164, 168, # right eyebrow
+            180, 184, 188 # left eyebrow
+        ]
+        image = drawPolygon(image, predictedShape[:5], markSize, color, False)
+        image = drawPolygon(image, predictedShape[5:8], markSize, color, False)
+        image = drawPolygon(image, [predictedShape[i] for i in [8, 10, 9, 13, 8, 11, 9, 12]], markSize, color) # sort mouth points
+        image = drawPolygon(image, predictedShape[14:18], markSize, color)
+        image = drawPolygon(image, predictedShape[18:22], markSize, color)
+        image = drawPolygon(image, predictedShape[22:26], markSize, color)
+        image = drawPolygon(image, predictedShape[26:30], markSize, color)
     return image
+
+def drawPolygon(im, points, markSize=3, color=255, connect=True):
+    numpoints = len(points)
+    for i in range(numpoints-1):
+        cv2.line(im, tuple(map(int, points[i])), tuple(map(int, points[i+1])), color, (markSize+1)/2)
+    if connect:
+        cv2.line(im, tuple(map(int, points[numpoints-1])), tuple(map(int, points[0])), color, (markSize+1)/2)
+    return im
+
 def drawRect(im, rect, color=255, thickness=5):
     x,y,w,h = rect
     cv2.line(im, (x,y), (x,y+h), color, thickness)
